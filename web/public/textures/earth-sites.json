@@ -1,0 +1,86 @@
+{
+ "sf-volcanic-field": {
+  "lat": 35.35,
+  "lon": -111.5,
+  "half_lat": 4.5,
+  "half_lon": 8.8275
+ },
+ "iceland-highlands": {
+  "lat": 65.03,
+  "lon": -16.75,
+  "half_lat": 4.5,
+  "half_lon": 17.0558
+ },
+ "svalbard": {
+  "lat": 78.2,
+  "lon": 15.6,
+  "half_lat": 4.5,
+  "half_lon": 35.2085
+ },
+ "devon-island": {
+  "lat": 75.4,
+  "lon": -89.8,
+  "half_lat": 4.5,
+  "half_lon": 28.5636
+ },
+ "mcmurdo-dry-valleys": {
+  "lat": -77.6,
+  "lon": 146.4704,
+  "half_lat": 4.5,
+  "half_lon": 33.5296
+ },
+ "ellesmere-inland": {
+  "lat": 81.0,
+  "lon": -75.0,
+  "half_lat": 4.5,
+  "half_lon": 40.0
+ },
+ "axel-heiberg": {
+  "lat": 79.42,
+  "lon": -90.75,
+  "half_lat": 4.5,
+  "half_lon": 39.2139
+ },
+ "cornwallis-resolute": {
+  "lat": 74.7,
+  "lon": -94.9,
+  "half_lat": 4.5,
+  "half_lon": 27.2858
+ },
+ "peary-land": {
+  "lat": 82.17,
+  "lon": -30.5,
+  "half_lat": 4.5,
+  "half_lon": 40.0
+ },
+ "kronprins-christian-land": {
+  "lat": 81.6,
+  "lon": -16.7,
+  "half_lat": 4.5,
+  "half_lon": 40.0
+ },
+ "franz-josef-land": {
+  "lat": 80.62,
+  "lon": 58.05,
+  "half_lat": 4.5,
+  "half_lon": 40.0
+ },
+ "severnaya-zemlya": {
+  "lat": 79.28,
+  "lon": 101.6,
+  "half_lat": 4.5,
+  "half_lon": 38.7077
+ },
+ "schirmacher-oasis": {
+  "lat": -70.75,
+  "lon": 11.65,
+  "half_lat": 4.5,
+  "half_lon": 21.8387
+ },
+ "vestfold-hills": {
+  "lat": -68.55,
+  "lon": 78.2,
+  "half_lat": 4.5,
+  "half_lon": 19.6889
+ }
+}
