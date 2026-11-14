@@ -1,69 +1,77 @@
-import Image from "next/image";
+import { Arrow, ButtonLink } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { Panel } from "@/components/ui/Panel";
+import { Stat } from "@/components/ui/Stat";
+import { DEFAULT_CHILL, DEFAULT_CLOUD, DEFAULT_TARGET, FEATURED_SITE, getTarget, presetId, scoresFor } from "@/lib/data";
+import { loadIndex, loadSite } from "@/lib/data.server";
+import { formatDayRange, formatMinutes, formatNumber, formatPercent, MONTHS_LONG, shortName } from "@/lib/format";
 
-export default function Home() {
+const SAMPLE_MONTH = 8; // September
+
+export default async function Home() {
+  const index = await loadIndex();
+  const target = getTarget(index, DEFAULT_TARGET);
+  const [arizona, ellesmere] = await Promise.all([loadSite("sf-volcanic-field"), loadSite(FEATURED_SITE)]);
+  const durations = (windows: [number, number][]) => windows.map(([a, b]) => b - a);
+  const az = durations(arizona.sun_samples.months[SAMPLE_MONTH].windows[target.id]);
+  const el = durations(ellesmere.sun_samples.months[SAMPLE_MONTH].windows[target.id]);
+  const best = scoresFor(index, target.id, presetId(DEFAULT_CLOUD, DEFAULT_CHILL), FEATURED_SITE).best_window;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <section className="relative isolate overflow-hidden">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-[-420px] left-1/2 -z-10 h-[600px] w-[1400px] -translate-x-1/2 bg-[radial-gradient(closest-side,rgb(255_138_61/0.28),rgb(246_182_90/0.08)_55%,transparent_75%)]"
+      />
+      <div className="wrap pt-[clamp(72px,12vh,140px)] pb-[clamp(96px,16vh,160px)]">
+        <Eyebrow>For field-test leads planning Artemis surface tests</Eyebrow>
+        <h1 className="mt-5 max-w-[14ch] font-display text-[clamp(44px,6.2vw,92px)] leading-[0.98] tracking-[-0.012em]">
+          Find your place, at <em className="text-sun-pale">the right time</em>.
+        </h1>
+        <p className="mt-6 max-w-[56ch] text-[clamp(16px,1.35vw,19px)] leading-relaxed text-ink-2">
+          At {shortName(target.name)}, a candidate Artemis III region near the lunar South Pole, the Sun never climbs
+          above {formatNumber(target.band_max_deg)}°. On 15 {MONTHS_LONG[SAMPLE_MONTH]} the Sun at the Arizona test
+          site passes through that band in <strong className="font-medium text-ink">{formatMinutes(az[0])}</strong>,
+          at dawn and at dusk. Inland Ellesmere Island holds it for{" "}
+          <strong className="font-medium text-ink">{formatMinutes(el[0])}</strong>.
+        </p>
+        <div className="mt-9 flex flex-wrap gap-3">
+          <ButtonLink href="/planner/" variant="primary">
+            Open the planner <Arrow />
+          </ButtonLink>
+          <ButtonLink href={`/sites/${FEATURED_SITE}/`}>See Inland Ellesmere Island</ButtonLink>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="mt-16 grid gap-4 md:grid-cols-3">
+          <Panel className="p-6">
+            <Eyebrow>Arizona · 15 {MONTHS_LONG[SAMPLE_MONTH]}</Eyebrow>
+            <Stat className="mt-3" size="md" value={formatMinutes(az[0])} unit={`× ${az.length} a day`} />
+            <p className="mt-3 text-sm text-ink-2">Too short for a 2-hour test, so teams work at night under lamps.</p>
+          </Panel>
+          <Panel className="p-6">
+            <Eyebrow>Inland Ellesmere · 15 {MONTHS_LONG[SAMPLE_MONTH]}</Eyebrow>
+            <Stat className="mt-3" size="md" value={formatMinutes(el[0])} unit={`× ${el.length} a day`} />
+            <p className="mt-3 text-sm text-ink-2">The real Sun skims the horizon for hours over real terrain.</p>
+          </Panel>
+          {best && (
+            <Panel tone="sun" className="p-6">
+              <Eyebrow accent="Best window">{formatDayRange(best.start, best.end)}</Eyebrow>
+              <Stat
+                className="mt-3"
+                size="md"
+                tone="sun"
+                value={formatNumber(best.held_out_mean)}
+                unit={`of ${index.campaign_days} days`}
+              />
+              <p className="mt-3 text-sm text-ink-2">
+                Expected usable days in a {index.campaign_days}-day campaign. Bad year {formatNumber(best.p10, 0)},
+                good year {formatNumber(best.p90, 0)}, and a {formatPercent(best.p_at_least)} chance of at least{" "}
+                {index.min_usable_days}.
+              </p>
+            </Panel>
+          )}
         </div>
-      </main>
-    </div>
+      </div>
+    </section>
   );
 }
