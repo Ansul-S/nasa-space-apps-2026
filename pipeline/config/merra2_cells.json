@@ -1,0 +1,132 @@
+{
+  "source": "MERRA-2 M2C0NXASM v5.12.4 (FRLAND, FRLANDICE, FROCEAN, FRLAKE, PHIS)",
+  "source_url": "https://doi.org/10.5067/ME5QX6Q5IGGU",
+  "cells": {
+    "sf-volcanic-field": {
+      "lat": 35.5,
+      "lon": -111.25,
+      "land": 1.0,
+      "land_ice": 0.0,
+      "ocean": 0.0,
+      "lake": 0.0,
+      "elevation_m": 1593
+    },
+    "iceland-highlands": {
+      "lat": 65.0,
+      "lon": -16.875,
+      "land": 0.13,
+      "land_ice": 0.86,
+      "ocean": 0.0,
+      "lake": 0.01,
+      "elevation_m": 802
+    },
+    "svalbard": {
+      "lat": 78.0,
+      "lon": 15.625,
+      "land": 0.53,
+      "land_ice": 0.24,
+      "ocean": 0.22,
+      "lake": 0.0,
+      "elevation_m": 269
+    },
+    "devon-island": {
+      "lat": 75.5,
+      "lon": -90.0,
+      "land": 0.84,
+      "land_ice": 0.0,
+      "ocean": 0.14,
+      "lake": 0.01,
+      "elevation_m": 188
+    },
+    "mcmurdo-dry-valleys": {
+      "lat": -77.5,
+      "lon": 162.5,
+      "land": 0.0,
+      "land_ice": 0.78,
+      "ocean": 0.22,
+      "lake": 0.0,
+      "elevation_m": 860
+    },
+    "ellesmere-inland": {
+      "lat": 81.0,
+      "lon": -75.0,
+      "land": 0.42,
+      "land_ice": 0.56,
+      "ocean": 0.02,
+      "lake": 0.01,
+      "elevation_m": 851
+    },
+    "axel-heiberg": {
+      "lat": 79.5,
+      "lon": -90.625,
+      "land": 0.3,
+      "land_ice": 0.66,
+      "ocean": 0.03,
+      "lake": 0.01,
+      "elevation_m": 764
+    },
+    "cornwallis-resolute": {
+      "lat": 74.5,
+      "lon": -95.0,
+      "land": 0.3,
+      "land_ice": 0.0,
+      "ocean": 0.7,
+      "lake": 0.0,
+      "elevation_m": 33
+    },
+    "peary-land": {
+      "lat": 82.0,
+      "lon": -30.625,
+      "land": 0.0,
+      "land_ice": 0.8,
+      "ocean": 0.2,
+      "lake": 0.0,
+      "elevation_m": 439
+    },
+    "kronprins-christian-land": {
+      "lat": 81.5,
+      "lon": -16.875,
+      "land": 0.0,
+      "land_ice": 0.73,
+      "ocean": 0.26,
+      "lake": 0.0,
+      "elevation_m": 203
+    },
+    "franz-josef-land": {
+      "lat": 80.5,
+      "lon": 58.125,
+      "land": 0.02,
+      "land_ice": 0.45,
+      "ocean": 0.52,
+      "lake": 0.01,
+      "elevation_m": 69
+    },
+    "severnaya-zemlya": {
+      "lat": 79.5,
+      "lon": 101.875,
+      "land": 0.02,
+      "land_ice": 0.25,
+      "ocean": 0.73,
+      "lake": 0.0,
+      "elevation_m": 80
+    },
+    "schirmacher-oasis": {
+      "lat": -71.0,
+      "lon": 11.875,
+      "land": 0.0,
+      "land_ice": 1.0,
+      "ocean": 0.0,
+      "lake": 0.0,
+      "elevation_m": 721
+    },
+    "vestfold-hills": {
+      "lat": -68.5,
+      "lon": 78.125,
+      "land": 0.0,
+      "land_ice": 0.38,
+      "ocean": 0.62,
+      "lake": 0.0,
+      "elevation_m": 141
+    }
+  }
+}
