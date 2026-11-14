@@ -7,7 +7,7 @@ Analysis of the official resources for the NASA Space Apps 2026 challenge *"Iden
 2. `5_Synthesis/A_Parameter_Crosswalk.md`: the key table mapping Moon/Mars measurements to Earth datasets
 3. The resource files you will work with (below)
 4. `5_Synthesis/B_Integration_Strategy.md` → `C_Data_Access_Cheatsheet.md` → `D_What_We_Can_Build.md`
-5. `6_Problem_and_Solution/`: the problem research (who chooses analog sites, how, and where current options fall short), the target user, the approaches compared and the proposed solution
+5. `6_Problem_and_Solution/`: the problem research (who chooses analog sites, how, and where current options fall short), the target user, the approaches compared, the proposed solution and two additional proposed features
 
 ```
 Research/
@@ -16,7 +16,7 @@ Research/
 ├── 3_ESA/    09_Copernicus_Data_Space · 10_ESA_Open_Science_Catalog
 ├── 4_JAXA/   11_G-Portal_and_JAXA_Earth_API
 ├── 5_Synthesis/  A_Parameter_Crosswalk · B_Integration_Strategy · C_Data_Access_Cheatsheet · D_What_We_Can_Build
-└── 6_Problem_and_Solution/  01_Problem_Space · 02_Target_User · 03_Approaches_Compared · 04_Proposed_Solution
+└── 6_Problem_and_Solution/  01_Problem_Space · 02_Target_User · 03_Approaches_Compared · 04_Proposed_Solution · 05_Additional_Features
 ```
 
 ## The 11 resources at a glance

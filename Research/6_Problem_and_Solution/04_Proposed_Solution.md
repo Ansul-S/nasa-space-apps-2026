@@ -1,6 +1,6 @@
 # 04 · Proposed Solution: Seasonal Analog Planner
 
-**Status:** proposal for team review. Nothing has been built. It is based on `01` (problem), `02` (user) and `03` (approaches).
+**Status:** proposal for team review. Nothing has been built. It is based on `01` (problem), `02` (user) and `03` (approaches). Two more features are proposed in `05_Additional_Features.md` and are not yet merged into this file.
 
 ## In one sentence
 A **seasonal, test-first analog planner**:
@@ -23,7 +23,7 @@ No existing option combines all three:
 
 **The story for judges:**
 - NASA rehearses South Pole moonwalks **at night with a spotlight** in Arizona, because the Sun there sits in the Artemis 0–7° band for only about 1.2 hours a day.
-- Our tool finds **where and when on Earth the real Sun does this for 5–10 hours a day**, over real terrain, and in which of those weeks the ground is also snow-free.
+- Our tool finds **where and when on Earth the real Sun does this for hours a day**, over real terrain, and in which of those weeks the sky is clear and the ground is snow-free.
 - The same seasonal idea works for Mars: cold, dry, dusty months in Earth deserts.
 - It is upfront about what Earth still can't reproduce.
 
@@ -32,7 +32,7 @@ No existing option combines all three:
 |---|---|---|---|
 | 1 | **Test-first search** | Pick a target (e.g. Mons Mouton, Malapert Massif) and a test objective, plus a month or "any month". The weights per condition are shown and can be adjusted. Get a ranked map and list, with a "new site" flag for places that are not well-known analogs. | Who: test lead. Core problem: yes, it removes familiarity bias. Essential: yes. |
 | 2 | **Seasonal analog calendar** | For each candidate, a 12-month strip of the combined match, with one row per seasonal condition (low-sun hours, snow-free ground, temperature, dust). For lighting, the exact daily windows when the Sun is in the target's elevation band, with sun direction. The hard months are flagged: polar night, extreme cold. | Who: test lead choosing dates. Core problem: yes, it is the time dimension. Essential: yes, it is the USP. |
-| 3 | **Fidelity card + export** | Per condition: target value, Earth value, match level (**match / partial / breaks down / impossible on Earth**) and data source. Also the **best window and why**. Format example, not yet a result: "10 Aug–5 Sep: sun 0–7° for ~7 h/day, ground snow-free". Export as CSV, GeoJSON or a printable card for test plans and proposals. | Who: test lead justifying the site and dates. Core problem: yes, it states the limits. Essential: yes, and it fits their existing workflow. |
+| 3 | **Fidelity card + export** | Per condition: target value, Earth value, match level (**match / partial / breaks down / impossible on Earth**) and data source. Also the **best window and why**. Format example, not yet a result: "1–20 Apr: sun 0–7° for ~5 h/day, sky clear on about 6 of 14 days, ground snow-covered". Export as CSV, GeoJSON or a printable card for test plans and proposals. | Who: test lead justifying the site and dates. Core problem: yes, it states the limits. Essential: yes, and it fits their existing workflow. |
 
 ## Seasonal conditions in version 1
 At most four, so the scope stays small.
@@ -100,6 +100,7 @@ MOLA / TES / CRISM (Mars)                     Daily:    sun geometry → low-sun
 |---|---|
 | Physics Earth can't reproduce | Gravity, vacuum, radiation |
 | Lighting | The Sun moves ~28× faster on Earth (15°/h vs 0.5°/h), so shadows rotate quickly. Sky light fills in shadows. Refraction distorts the sun near the horizon. |
+| Weather | Cloud can make a low-sun window unusable. Svalbard's August sky is about 82% cloud-covered, which leaves 0 usable days in a typical 14-day campaign (`05` §3). Clear sky is not yet one of the version-1 conditions. |
 | Seasons | **The Moon has almost no seasons** (1.5° axial tilt), so for Moon targets the time dimension comes from Earth's seasons only. Low-sun windows exist only at high latitudes. Monthly averages hide year-to-year variation: a typical August is not a guaranteed August. |
 | Temperature | Permanently shadowed regions reach 25–40 K vs Earth's lowest ~175 K, so there is no absolute match. Only relative extremes can be compared. |
 | Data coverage | EMIT covers arid land within ±52° only. There is no global cave or lava-tube dataset. DEMs include snow and ice surfaces. |

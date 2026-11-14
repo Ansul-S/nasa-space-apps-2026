@@ -41,7 +41,7 @@ On Earth, the conditions that define a Moon or Mars environment change through t
 
 | Seasonal condition | Target | Earth candidate | Status |
 |---|---|---|---|
-| Sun 0–7° above the horizon for many hours | Moon South Pole (navigation, EVA) | Svalbard in August (~7.4 h/day), McMurdo Dry Valleys in February (~8.1 h/day). Flagstaff, AZ only ever gets ~1.2 h/day. | ✅ calculated (`01`) |
+| Sun 0–7° above the horizon for many hours | Moon South Pole (navigation, EVA) | Svalbard in August (~7.4 h/day), McMurdo Dry Valleys in February (~8.1 h/day). Flagstaff, AZ only ever gets ~1.2 h/day. | ✅ sun geometry calculated (`01`). ⚠️ Cloud cover cuts the usable days sharply: Svalbard in August drops to 0 of 14 days, while Ellesmere Island in March–April keeps 6–7 (`05`). |
 | Snow-free bare ground | Moon and Mars terrain and mobility tests | High-latitude polar deserts in late summer | 🟡 to check with monthly snow data |
 | Cold, with a large day–night temperature swing | Mars (mean ≈ −60 °C) | Polar and high-altitude deserts in their cold season | 🟡 to check with monthly temperature data |
 | Dust activity | Mars dust season | Desert dust seasons | 🟡 to check with monthly dust data |
