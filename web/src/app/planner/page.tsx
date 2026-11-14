@@ -1,28 +1,38 @@
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+
 import type { Metadata } from "next";
 
-import { ButtonLink } from "@/components/ui/Button";
-import { Eyebrow } from "@/components/ui/Eyebrow";
-import { FEATURED_SITE } from "@/lib/data";
+import { Planner, type PatchBoxes } from "@/components/planner/Planner";
+import { DEFAULT_CHILL, DEFAULT_CLOUD, DEFAULT_TARGET, FEATURED_SITE, getSite, getTarget } from "@/lib/data";
+import { loadIndex } from "@/lib/data.server";
+import { ringHour, toPlannerData } from "@/lib/planner";
 
 export const metadata: Metadata = {
   title: "Planner",
-  description: "Rank every analog site by month, with the low-sun ring on a 3D globe.",
+  description:
+    "Rank every analog site for a lunar South Pole test by month, with the low-sun ring on a 3D Earth and a Moon view to compare.",
 };
 
-export default function PlannerPage() {
-  return (
-    <section className="wrap py-24">
-      <Eyebrow>Planner</Eyebrow>
-      <h1 className="mt-4 max-w-[18ch] font-display text-[clamp(40px,5vw,72px)] leading-none">
-        Rank every site for any month.
-      </h1>
-      <p className="mt-5 max-w-[56ch] text-ink-2">
-        The interactive globe, month and hour clock and ranked site list are in progress. The site analysis is
-        available now.
-      </p>
-      <div className="mt-8">
-        <ButtonLink href={`/sites/${FEATURED_SITE}/`}>See Inland Ellesmere Island</ButtonLink>
-      </div>
-    </section>
-  );
+/** The planner opens on September, the month of the featured site's best window. */
+const OPEN_MONTH = 8;
+
+export default async function PlannerPage() {
+  const index = await loadIndex();
+  const site = getSite(index, FEATURED_SITE);
+  if (!site) throw new Error(`Featured site ${FEATURED_SITE} is missing from index.json`);
+  const target = getTarget(index, DEFAULT_TARGET);
+  const patches = JSON.parse(
+    await readFile(path.join(process.cwd(), "public", "textures", "earth-sites.json"), "utf8"),
+  ) as PatchBoxes;
+  const initial = {
+    target: DEFAULT_TARGET,
+    cloud: DEFAULT_CLOUD,
+    chill: DEFAULT_CHILL,
+    month: OPEN_MONTH,
+    // Open with the ring passing over the featured site.
+    hour: ringHour(site.lat, site.lon, OPEN_MONTH, target.band_max_deg),
+    site: site.id,
+  };
+  return <Planner data={toPlannerData(index)} patches={patches} initial={initial} />;
 }

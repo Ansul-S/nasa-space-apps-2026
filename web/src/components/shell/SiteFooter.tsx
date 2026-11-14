@@ -23,7 +23,8 @@ export async function SiteFooter() {
           </p>
           <p>
             Globe imagery: NASA GIBS Blue Marble and VIIRS Black Marble. Moon: NASA SVS CGI Moon Kit (LRO LROC colour,
-            LOLA elevation).
+            LOLA elevation). Sun on the Moon: astronomy-engine with the IAU rotation model. Moon feature positions: USGS
+            Gazetteer of Planetary Nomenclature (IAU). Place search: Photon, © OpenStreetMap contributors.
           </p>
         </div>
       </div>

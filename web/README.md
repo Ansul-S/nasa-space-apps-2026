@@ -7,7 +7,7 @@ pnpm install
 pnpm build      # static site in out/
 npx serve out   # preview the build locally
 
-pnpm test       # sun engine and formatting checks (Node test runner)
+pnpm test       # sun engines, planner, globe geometry and formatting checks (Node test runner)
 pnpm typecheck
 pnpm lint
 ```
@@ -21,3 +21,18 @@ pnpm lint
 - `src/lib/sun.ts`: NOAA sun position and the low-sun ring, ported from `pipeline/src/analog_pipeline/sun.py`. `sun.test.ts` checks it against the pipeline output for every site and month.
 - `src/lib/format.ts`: number, date and unit formatting.
 - `src/lib/palette.ts`: runtime copies of the colour tokens in `src/app/globals.css`, including the score ramp.
+- `src/lib/moon-sun.ts`: sun position on the Moon from the astronomy-engine ephemeris and the IAU rotation model, checked against JPL Horizons in `moon-sun.test.ts`.
+- `src/lib/moon-features.ts`: Moon features for the Moon view, at their IAU gazetteer positions.
+- `src/lib/orbit.ts`: globe geometry and the camera orbit, which can pass over the poles.
+- `src/lib/planner.ts`: the planner's slice of `index.json`, the ranking, and sun-band hours for any searched point.
+- `src/lib/search.ts`: search over the sites and Moon features, plus places on Earth from the Photon geocoder.
+- `src/components/globe/`: the three.js globe (`Globe.ts`, shaders) and its React wrapper.
+- `src/components/planner/`: the planner screen: controls, ranked list, clock, search and point cards.
+
+## Textures
+
+`public/textures/` holds the globe images: NASA GIBS Blue Marble and Black Marble for Earth (plus sharper patches around each site for close zoom), and the NASA SVS CGI Moon Kit colour and LOLA slope maps for the Moon. `scripts/build_textures.py` downloads the sources and rebuilds them:
+
+```bash
+python3 scripts/build_textures.py --cache <download dir>   # needs numpy and Pillow
+```
