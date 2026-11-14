@@ -1,6 +1,6 @@
 # 04 · Proposed Solution: Seasonal Analog Planner
 
-**Status:** proposal for team review. Nothing has been built. It is based on `01` (problem), `02` (user) and `03` (approaches). Updated 14 Nov 2026 with the decisions in `05_Additional_Features.md` §11 (summary in "Decisions made" below). The build order and the scope for the event are in `06_Roadmap.md`.
+**Status:** approved proposal. The data pipeline (M2a in `06_Roadmap.md`) is built and its results are in `05_Additional_Features.md` §12; the website is not built yet. It is based on `01` (problem), `02` (user) and `03` (approaches). Updated 14 Nov 2026 with the decisions in `05_Additional_Features.md` §11 (summary in "Decisions made" below). The build order and the scope for the event are in `06_Roadmap.md`.
 
 ## In one sentence
 A **seasonal, test-first analog planner**:
@@ -20,7 +20,7 @@ On Earth, the conditions that make a site Moon- or Mars-like change through the 
 No existing option combines all four:
 1. Ranking **for a specific test**, not a general idea of "Moon-like".
 2. **Seasonal windows**: month by month for every condition, and hour by hour for lighting.
-3. **Usable-day odds**: how many days a campaign of a given length can expect, from 25 years of weather data.
+3. **Usable-day odds**: how many days a campaign of a given length can expect, from 10 years of hourly weather data (2016–2025).
 4. **Measured limits**: every result says what won't carry over.
 
 **The story for judges:**
@@ -34,8 +34,8 @@ No existing option combines all four:
 |---|---|---|---|
 | 1 | **Test-first search** | Two ways in. **Search:** pick a target (e.g. Mons Mouton, Malapert Massif) and a test objective, plus a month or "any month". The weights per condition are shown and can be adjusted. Get a ranked map and list, with a "new site" flag for places that are not well-known analogs. **Check my site:** give a site the user already has (map click, coordinates, a known site by name, or a GeoJSON/KML test area). Get its scores plus **gap-fillers**: for each condition the site fails, the best other site and month that provides it. | Who: test lead, or a researcher with a familiar site. Core problem: yes, it removes familiarity bias and measures the site they would use anyway. Essential: yes. |
 | 2 | **Seasonal analog calendar** | For each candidate, a 12-month strip of the combined match, with one row per seasonal condition (low-sun hours, clear sky, snow-free ground, temperature). For lighting, the exact daily windows when the Sun is in the target's elevation band, with sun direction. The hard months are flagged: polar night, extreme cold. | Who: test lead choosing dates. Core problem: yes, it is the time dimension. Essential: yes, it is the USP. |
-| 3 | **Fidelity card + export** | Per condition: target value, Earth value, match level (**match / partial / breaks down / impossible on Earth**) and data source. Also the **best window and why**. Format example, not yet a result: "1–20 Apr: sun 0–7° for ~5 h/day, about 4 usable days of 14, ground snow-covered, wind chill near the −28 °C limit". Export as CSV, GeoJSON or a printable card for test plans and proposals. | Who: test lead justifying the site and dates. Core problem: yes, it states the limits. Essential: yes, and it fits their existing workflow. |
-| 4 | **Campaign odds** | Pick a site from the set calculated in advance, a month or start date, and a campaign length (default 14 days). Get the typical number of usable days, a bad-year and a good-year value, the chance of at least N usable days, a 12-month odds strip, and the result for each past year. The usable-day rule and its defaults are in `05` §5. Data: MERRA-2 and CERES from NASA Earthdata (`05` §8). | Who: test lead setting dates and campaign length. Core problem: yes. Without it the "when" can be wrong: Svalbard in August has long low-sun windows but 0 usable days. Essential: yes. |
+| 3 | **Fidelity card + export** | Per condition: target value, Earth value, match level (**match / partial / breaks down / impossible on Earth**) and data source. Also the **best window and why**. Example from the built pipeline (Inland Ellesmere Island, Mons Mouton, strict cloud): "24 Sep – 7 Oct: sun 0–6.9° for about 4 h in the longest daily window, about 3 usable days of 14, ground snow-covered, median wind chill about −15 °C". Export as CSV, GeoJSON or a printable card for test plans and proposals. | Who: test lead justifying the site and dates. Core problem: yes, it states the limits. Essential: yes, and it fits their existing workflow. |
+| 4 | **Campaign odds** | Pick a site from the set calculated in advance, a month or start date, and a campaign length (default 14 days). Get the typical number of usable days, a bad-year and a good-year value, the chance of at least N usable days, a 12-month odds strip, and the result for each past year. The usable-day rule and its defaults are in `05` §5. Data: MERRA-2 and CERES (`05` §8); for the event, cloud and precipitation are read through the NASA POWER hourly API (`05` §12). | Who: test lead setting dates and campaign length. Core problem: yes. Without it the "when" can be wrong: Svalbard in August has long low-sun windows but 0 usable days. Essential: yes. |
 
 ## Seasonal conditions in version 1
 At most four, so the scope stays small.
@@ -43,8 +43,8 @@ At most four, so the scope stays small.
 | Condition | Matters for | Earth data (already monthly) | How compared |
 |---|---|---|---|
 | **Low-sun hours** (sun within the target's elevation band: from 0° up to about (90° − target latitude) + 1.5°, at most ~7° for the south-polar regions) | Moon navigation and EVA | Calculated with an accurate sun-position method (as in NOAA's solar calculator) for every place and day; local horizon from the Copernicus DEM for shortlisted sites | Directly (degrees, hours per day) |
-| **Clear sky** | Moon lighting tests: a low-sun window is useless under cloud | CERES SYN1deg monthly cloud (Earthdata); hourly CERES for the window hours in Feature 4 | Earth-only condition (the Moon has no cloud). Share of days with cloud ≤30% (strict) or ≤50% (relaxed). |
-| **Snow-free bare ground** | Moon and Mars terrain and mobility | MODIS `MOD10CM` monthly snow cover; `MCD12Q1` / ESA WorldCover for bare ground | Yes/no per month |
+| **Clear sky** | Moon lighting tests: a low-sun window is useless under cloud | CERES SYN1deg hourly cloud, for the calendar and for the window hours in Feature 4 | Earth-only condition (the Moon has no cloud). Share of hours with cloud ≤30% (strict) or ≤50% (relaxed). Hours are used because daily means hide clear spells of several hours. |
+| **Snow-free bare ground** | Moon and Mars terrain and mobility | MODIS `MOD10CM` monthly snow cover; `MCD12Q1` / ESA WorldCover for bare ground | Snow-free (under 10% snow), patchy (10–50%) or snow-covered, per month. `MOD10CM` maps Antarctica as snow by design, so the Antarctic sites show "not measured". |
 | **Surface temperature** (day, night, day–night range) | Mars science and instruments; context for Moon tests | MODIS LST monthly normals (JAXA Earth API) | Percentile within each body, with the reference group stated |
 
 Clear sky took the fourth slot (decided 14 Nov 2026). `05` §3 shows that the lighting result is wrong without it.
@@ -104,16 +104,17 @@ MOLA / TES / CRISM (Mars)                     Daily:    sun geometry → low-sun
 2. **The Arizona check.** The San Francisco Volcanic Field should score **well on terrain and poorly on lighting in every month**. That matches NASA's choice to add spotlights there.
 3. **Field-season check.** The snow-free months calculated for well-known Arctic and Antarctic analog sites should match their known summer field seasons.
 4. **Sun-window check.** Compare calculated sun windows with an independent solar calculator (e.g. NOAA).
-5. **Weather check.** Compare calculated usable days with ground observations, e.g. the radiation station at Ny-Ålesund (Svalbard) or the Eureka weather station (Ellesmere Island).
+5. **Weather check.** Compare calculated usable days with ground observations, e.g. the radiation station at Ny-Ålesund (Svalbard) or the Eureka weather station (Ellesmere Island). Not done for the event. `05` §12 lists the checks that were run instead.
 
 ## Limits we will state openly
 | Area | Limit |
 |---|---|
 | Physics Earth can't reproduce | Gravity, vacuum, radiation |
 | Lighting | The Sun moves ~28× faster on Earth (15°/h vs 0.5°/h), so shadows rotate quickly. Sky light fills in shadows. Refraction distorts the sun near the horizon. Earth's air dims and reddens the low Sun, while on the Moon it is full strength in a black sky. The analog matches shadow length and direction, not light intensity or contrast. |
-| Weather | Cloud can make a low-sun window unusable. Svalbard's August sky is about 82% cloud-covered, which leaves 0 usable days in a typical 14-day campaign (`05` §3). Clear sky is a seasonal condition and Feature 4 counts usable days, but the cloud data comes from a 1° grid and is least reliable over snow and ice. Local weather can differ. |
-| Cold | The best low-sun months are very cold. With the default −28 °C wind chill limit, Ellesmere Island in April keeps 2 (strict cloud) to 4 (relaxed cloud) usable days of 14, and March drops to 0 (`05` §3). |
-| Seasons | **The Moon has almost no seasons** (1.5° axial tilt), so for Moon targets the time dimension comes from Earth's seasons only. Low-sun windows exist only at high latitudes. Monthly averages hide year-to-year variation: a typical August is not a guaranteed August. |
+| Weather | Cloud can make a low-sun window unusable. Svalbard's August sky is about 82% cloud-covered, which leaves 0 usable days in a typical 14-day campaign (`05` §3, confirmed with hourly data in §12). Clear sky is a seasonal condition and Feature 4 counts usable days, but the cloud data comes from a 1° grid and is least reliable over snow and ice. Local weather can differ. |
+| Cold | The spring low-sun months are very cold. With the default −28 °C wind chill limit and hourly data, Ellesmere Island in April typically keeps 2 (strict cloud) to 3 (relaxed cloud) usable days of 14, and March 0 to 1. The autumn low-sun season is milder: from late September, about 3 (strict) to 4 (relaxed) usable days of 14 (`05` §12). |
+| Weather grid cell | MERRA-2 gives one value per 0.5° × 0.625° cell. Only 3 of the 14 site cells are mostly bare land; the others are partly or wholly ice sheet or ocean. At the McMurdo Dry Valleys and Schirmacher Oasis the cell is 7–12 °C too cold in summer, so their usable days are too pessimistic. Each site shows a class for this (`05` §12). |
+| Seasons | **The Moon has almost no seasons** (1.5° axial tilt), so for Moon targets the time dimension comes from Earth's seasons only. Low-sun windows exist only at high latitudes. Monthly averages hide year-to-year variation: a typical August is not a guaranteed August. The record has 10 years, so the bad-year and good-year values are uncertain. |
 | Temperature | Permanently shadowed regions reach 25–40 K vs Earth's lowest ~175 K, so there is no absolute match. Only relative extremes can be compared. |
 | Data coverage | EMIT covers arid land within ±52° only. There is no global cave or lava-tube dataset. DEMs include snow and ice surfaces. |
 | Not modelled in version 1 | Access, permits, cost of getting there. Safety only as the wind chill limit in Feature 4. |
@@ -167,7 +168,7 @@ Details in `05_Additional_Features.md` §11.
 2. **Check my site** is a second way into Feature 1, not a separate feature. The product has four features.
 3. **Clear sky** is a seasonal condition in version 1. It takes the fourth slot, and dust moves to the backlog.
 4. **Usable-day rule** for Feature 4 is approved, with a default wind chill limit of −28 °C for crewed tests (`05` §5).
-5. **Weather data** for Feature 4 comes from MERRA-2 and CERES in NASA Earthdata, not NASA POWER (`05` §8). For the event this is time-boxed: if the download test fails, the NASA POWER hourly API is the fallback (`06`).
+5. **Weather data** for Feature 4 comes from MERRA-2 and CERES in NASA Earthdata, not NASA POWER (`05` §8). For the event this is time-boxed: if the download test fails, the NASA POWER hourly API is the fallback (`06`). **Outcome:** temperature and wind come from MERRA-2 directly. Cloud and precipitation come through NASA POWER, because the CERES hourly files are about 780 MB per day with no subsetting service (`05` §12).
 6. **Roadmap** (`06_Roadmap.md`): a thin end-to-end version first, then widen. About 17 hours, one developer.
 7. **Scope for the event:** one objective (navigation and EVA under low sun), two lunar targets (Mons Mouton, Malapert Massif) and about 12 curated sites. Mars is a stretch goal, built only if ahead of schedule at the T+10 h checkpoint.
 8. **Stack:** a Python pipeline that calculates everything in advance, and a static Next.js website.

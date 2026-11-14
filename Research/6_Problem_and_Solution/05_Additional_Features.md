@@ -1,6 +1,6 @@
 # 05 · Two Additional Features
 
-**Status:** reviewed by the team on 14 Nov 2026. The decisions are in §11 and are merged into `04_Proposed_Solution.md`. Nothing has been built.
+**Status:** reviewed by the team on 14 Nov 2026. The decisions are in §11 and are merged into `04_Proposed_Solution.md`. The data pipeline is built: §12 gives its results, which replace the numbers in §3.
 
 Research date: 14 Nov 2026.
 
@@ -20,6 +20,8 @@ Research date: 14 Nov 2026.
 | e | **Earlier field data is hard to find.** | USGS survey Finding 15. |
 
 ## 3. New finding: sky cover changes the answer
+> The numbers in this section come from the first check, made with NASA POWER daily data over 25 years before anything was built. The results of the built pipeline, from 10 years of hourly data, are in §12.
+
 `01_Problem_Space.md` counted the hours the Sun spends 0–7° above the horizon. That is geometry only. A low-sun test also needs a clear sky.
 
 **Method**
@@ -52,7 +54,7 @@ The window column here is the longest unbroken window, averaged over the month. 
 **What it shows**
 - **The geometry-only answer was wrong.** Svalbard in August has long low-sun windows, but its sky is about 82% cloud-covered. A typical 14-day campaign gets **0 usable days**.
 - **The best odds move to the High Arctic in spring.** Under the first rule, Ellesmere Island in March–April gets 6–7 usable days of 14 (strict); the re-check below lowers this. The chance of at least 3 usable days is 88% in March and 79% in April.
-- **That window has its own costs.** Air temperature is −24 to −32 °C. The ground is probably snow-covered, which we have not yet checked.
+- **That window has its own costs.** Air temperature is −24 to −32 °C. The ground is snow-covered in those months (MODIS, §12).
 - **Bad years happen even in the best month.** Counting whole calendar months (30 days, strict limits), Ellesmere Island had 0 to 21 usable April days across the 25 years (median 17).
 - **The low-sun season at 81°N ends around 1 May.** The mean longest window is 5.8 h in April and 0.3 h in May. A 14-day campaign that starts late in April loses its last days, so in practice "April" means the first half of April.
 - **Flagstaff never qualifies.** Its longest low-sun window is about 40 minutes.
@@ -82,7 +84,7 @@ Each cell gives the typical usable days of 14, then the chance of at least 3 usa
 
 How the rule was applied:
 - Accurate sun-position formula; precipitation below 1 mm.
-- Wind at most 7.7 m/s where the ground is probably snow-covered. At most 10 m/s for Svalbard in August and the Dry Valleys, which are probably snow-free. Snow cover is not yet checked.
+- Wind at most 7.7 m/s where the ground is probably snow-covered. At most 10 m/s for Svalbard in August and the Dry Valleys, which are probably snow-free. Snow cover was not checked for this re-check; §12 uses MODIS snow cover.
 - Wind chill from the daily mean temperature and wind.
 
 **What it shows**
@@ -90,7 +92,7 @@ How the rule was applied:
 - **At the −28 °C default, April beats March.** Ellesmere Island in April keeps 2 (strict) or 4 (relaxed) usable days of 14. March drops to 0.
 - **Svalbard and Devon Island in April come close** with relaxed cloud: 3 usable days of 14 each. Svalbard has an airport and research stations, so it is far easier to reach than Ellesmere Island.
 - **Svalbard in August stays at 0 under every rule.**
-- **These numbers will change again** when they are recalculated from hourly MERRA-2 and CERES data for the window hours (§8).
+- **These numbers were recalculated** from hourly data for the window hours. The results are in §12.
 
 ## 4. Candidates and the feature check
 | Candidate | Who uses it | Solves the core problem? | Essential? | Extra cost | Decision |
@@ -111,10 +113,10 @@ How the rule was applied:
 |---|---|
 | **User sets** | Site (from the set calculated in advance), month or start date, campaign length (default 14 days), and the limits of the usable-day rule below |
 | **User gets** | Typical usable days (median); a bad-year and a good-year value (10th and 90th percentile); the chance of at least N usable days; a 12-month odds strip; usable days for each past year |
-| **Method** | Count usable days in every N-day period over 25 years of daily data. No assumption that days are independent. The same idea is used as "weather window analysis" for offshore operations. |
-| **Data** | MERRA-2 (wind, precipitation, air temperature) and CERES SYN1deg (cloud), hourly and daily, from NASA Earthdata. Free Earthdata Login. Calculated in advance and shipped as static files, not fetched live. Details in §8. |
+| **Method** | Count usable days in every N-day period over 10 years of hourly data (2016–2025). The first check in §3 used 25 years of daily data. No assumption that days are independent. The same idea is used as "weather window analysis" for offshore operations. |
+| **Data** | MERRA-2 (wind, precipitation, air temperature) and CERES SYN1deg (cloud), hourly and daily, from NASA Earthdata. Free Earthdata Login. Calculated in advance and shipped as static files, not fetched live. Details in §8. For the event, cloud and precipitation are read through the NASA POWER hourly API (§12). |
 | **Defaults per test** | Lighting tests need a clear sky and a low-sun window. Mobility tests need only the wind, precipitation and cold limits. Crewed tests use the wind chill limit; uncrewed tests use the equipment's rated temperature. |
-| **Limits shown to the user** | Coarse grid (cloud 1°, weather 0.5° × 0.625°); uncertain cloud detection over snow and ice; precipitation poleward of 62.5° is MERRA-2 model output with no rain-gauge correction; 25 years give only 25 seasons, so the bad-year value is uncertain; the Arctic is warming, so early years may differ from recent ones; odds only for sites calculated in advance |
+| **Limits shown to the user** | Coarse grid (cloud 1°, weather 0.5° × 0.625°); uncertain cloud detection over snow and ice; precipitation poleward of 62.5° is MERRA-2 model output with no rain-gauge correction; 10 years give only 10 seasons, so the bad-year value is uncertain; a weather grid cell that is mostly ice sheet or ocean does not describe a bare-ground site inside it (§12); the Arctic is warming, so early years may differ from recent ones; odds only for sites calculated in advance |
 
 **Usable-day rule (approved 14 Nov 2026)**
 
@@ -147,11 +149,11 @@ A day is usable when the Sun stays in the target's elevation band for one unbrok
 | **Gap-fillers** | For each condition the site fails, the best other site and month that provides it. This shows which sites to combine. |
 | **Why it matters** | It starts from what users already do (problem b). It makes the cost of a convenient site visible in numbers. It accepts that no single site matches everything (problem c). |
 
-**Worked example (partly calculated)**
+**Worked example (calculated, except terrain)**
 1. Check the San Francisco Volcanic Field, Arizona, for "navigation and EVA under low sun".
 2. Terrain: not yet calculated.
-3. Lighting: fails. The longest low-sun window is about 40 minutes, and there are 0 usable days in any month.
-4. Gap-filler for lighting: Ellesmere Island in early April, with 2 (strict) or 4 (relaxed) usable days of 14 at the −28 °C wind chill default. Svalbard in April is close (3 of 14, relaxed) and easier to reach. Snow cover not yet checked.
+3. Lighting: fails. The longest low-sun window is about 40 minutes, and there are 0 usable days in any month under every preset.
+4. Gap-filler for lighting at the −28 °C wind chill default (§12): Ellesmere Island from late September, with about 3 (strict) to 4 (relaxed) usable days of 14, or in April with 2 (strict) to 3 (relaxed). Svalbard in April is close (3 of 14, relaxed) and easier to reach. The ground is snow-covered in all of these windows.
 
 ## 7. The four features along the user journey
 | Step in the user's work | Feature |
@@ -190,13 +192,13 @@ NASA POWER is not one of the 11 official resources. It repackages two datasets t
 | Cloud, cross-check | MERRA-2 `M2T1NXRAD` v5.12.4 | `CLDTOT` | 1 h | 1980 |
 
 - **Checked:** all six collections are in the Earthdata catalog (CMR), and the MERRA-2 variables above are listed in it.
-- **Not yet tested:** the CERES variable names, and how to download or extract a time series for one point. Both need an Earthdata Login.
+- **Tested 14 Nov 2026:** MERRA-2 point series download well through Earthdata OPeNDAP. The CERES hourly files are about 780 MB per day with no subsetting service, so cloud is read through the NASA POWER hourly API (`CLOUD_AMT`), which serves the same CERES SYN1deg product. Precipitation is also read through POWER because one request per site is faster.
 - **Gain:** with hourly data, cloud, wind and rain can be checked for the hours of the low-sun window instead of as daily means. This removes one limit in §3.
 - **Costs:**
   - The files are large, global and behind a login, so the web page cannot fetch them live.
   - The odds are calculated in advance for a fixed set of sites (the shortlisted candidates and the validation sites) and shipped as static files.
   - Check my site shows campaign odds only for sites in that set. For any other site it says the odds were not calculated. Covering every high-latitude land cell is possible, but the download size has not been estimated.
-- **The §3 results came from NASA POWER.** POWER uses the same two datasets, so the findings should hold. Recalculate them from MERRA-2 and CERES before they go into the pitch. The hourly cloud check may change the numbers.
+- **The §3 results came from NASA POWER.** POWER uses the same two datasets, so the findings should hold. They were recalculated from hourly data in §12; use those numbers in the pitch.
 
 **Source outside the official list**
 
@@ -225,7 +227,7 @@ NASA POWER is not one of the 11 official resources. It repackages two datasets t
 | Coarse weather data gives wrong odds for sites with local weather | State the grid size on every result. Check one or two sites against station records. |
 | Strict limits return "0 usable days" almost everywhere | Show strict and relaxed results. Let the user set the limits. |
 | Gap-fillers suggest sites that are unreachable | Flag extreme cold and polar night. The travel-time ranking is first in the backlog. |
-| Preparing 25 years of MERRA-2 and CERES data takes longer than planned | Test the download route before the hackathon. Start with the five sites in §3. |
+| Preparing 25 years of MERRA-2 and CERES data takes longer than planned | Test the download route before the hackathon. Start with the five sites in §3. **Outcome:** the record was cut to 10 years (2016–2025) for 14 sites. |
 | Campaign odds exist only for sites calculated in advance | Say so on the page. Add more sites if time allows. |
 
 ## 11. Decisions
@@ -243,10 +245,69 @@ NASA POWER is not one of the 11 official resources. It repackages two datasets t
 **Still open**
 1. Keep the USGS known-sites list, which is outside the official list, or replace it with our own list (§8).
 2. Check whether the challenge rules allow free sources outside the official list (§8).
-3. Before the pitch: recalculate the §3 numbers from hourly data. Comparison with ground observations is not in scope for the event (`06`).
+3. ~~Before the pitch: recalculate the §3 numbers from hourly data.~~ Done, see §12. Comparison with ground observations is not in scope for the event (`06`).
+
+## 12. Results from the built pipeline (14 Nov 2026)
+These numbers replace §3. The method and the data contract are in `pipeline/README.md`.
+
+**What changed from §3**
+- **Record:** 10 years (2016-01-02 to 2025-12-30) of hourly data, not 25 years of daily data. 14 sites, 2 targets (Mons Mouton, band 0–6.9°; Malapert Massif, band 0–5.5°).
+- **Rule:** the approved rule in §5, applied to the hours of the low-sun window at 5-minute steps. A day is a local solar day.
+- **Data:** temperature and wind from MERRA-2 `M2T1NXSLV` through Earthdata. Cloud (CERES SYN1deg) and precipitation (MERRA-2) through the NASA POWER hourly API. Snow from MODIS `MOD10CM`. Surface type of each weather cell from MERRA-2 `M2C0NXASM`.
+- **Snow:** measured for the first time. `MOD10CM` maps Antarctica as snow by design, so snow is "not measured" at the three Antarctic sites. Unknown snow takes the stricter 7.7 m/s wind limit.
+
+**Usable days for Mons Mouton.** Each cell gives the typical (median) usable days of 14 for campaigns that start in the month, then the chance of at least 3 usable days.
+
+| Site | Month | Strict cloud, −28 °C | **Relaxed cloud, −28 °C** | Strict cloud, −40 °C | Relaxed cloud, −40 °C | Longest window (h) | Mean cloud (%) | Median wind chill (°C) | Snow cover (%) |
+|---|---|---|---|---|---|---|---|---|---|
+| Svalbard | Aug | 0 (0%) | **0 (1%)** | 0 (0%) | 0 (1%) | 5.2 | 82 | 1 | 16 |
+| Svalbard | Apr | 1 (16%) | **3 (64%)** | 1 (17%) | 4 (70%) | 4.9 | 68 | −17 | 100 |
+| Devon Island | Feb | 0 (0%) | **0 (0%)** | 0 (2%) | 1 (15%) | 4.0 | 41 | −44 | 100 |
+| Devon Island | Apr | 1 (21%) | **2 (41%)** | 3 (53%) | 5 (75%) | 3.1 | 56 | −28 | 100 |
+| Ellesmere Island | Mar | 0 (10%) | **1 (23%)** | 4 (64%) | 7 (91%) | 5.6 | 39 | −39 | 100 |
+| Ellesmere Island | Apr | 2 (25%) | **3 (52%)** | 4 (62%) | 6 (81%) | 6.1 | 39 | −29 | 100 |
+| Ellesmere Island | Sep | 3 (53%) | **5 (90%)** | 3 (56%) | 5 (90%) | 4.2 | 70 | −15 | 100 |
+| Vestfold Hills | Dec | 3 (57%) | **4 (78%)** | 3 (57%) | 4 (78%) | 5.6 | 62 | −9 | not measured |
+| McMurdo Dry Valleys | Feb | 0 (4%) | **1 (33%)** | 0 (9%) | 5 (80%) | 5.3 | 62 | −24 | not measured |
+| McMurdo Dry Valleys | Oct | 0 (0%) | **0 (2%)** | 0 (4%) | 3 (64%) | 4.0 | 61 | −37 | not measured |
+
+The San Francisco Volcanic Field in Arizona has 0 usable days in every month under every preset. Its longest low-sun window is 0.6 to 0.7 hours.
+
+**Best 14-day window per site, at the −28 °C default.** The value is the mean usable days of 14, scored on years that were left out when the window was chosen, so it is not inflated by picking the best window.
+
+| Site | Strict cloud | Relaxed cloud | Weather cell |
+|---|---|---|---|
+| Peary Land | 21 Sep – 4 Oct: 4.5 | 22 Sep – 5 Oct: 6.6 | Not representative |
+| Vestfold Hills | 22 Dec – 4 Jan: 3.7 | 26 Dec – 8 Jan: 4.8 | Mixed |
+| Ellesmere Island | 24 Sep – 7 Oct: 3.3 | 16–29 Sep: 4.4 | Mixed |
+| Devon Island | 30 Apr – 13 May: 3.0 | 30 Apr – 13 May: 4.0 | Representative |
+| Svalbard | 22 Apr – 5 May: 1.6 | 14–27 Apr: 3.4 | Representative |
+
+**What it shows**
+- **The §3 findings hold.** Svalbard in August stays at 0. At the −28 °C default, Ellesmere Island in April beats March. Arizona never qualifies.
+- **Autumn is a second low-sun season in the High Arctic, and a milder one.** At the −28 °C limit on Ellesmere Island, comparing April with 15 September – 14 October:
+  - With relaxed cloud, autumn is better: more usable days in 10 of 10 years (122 against 76 in total).
+  - With strict cloud, the two are comparable: autumn has more usable days in 6 of 10 years (68 against 46), and April draws level if the air is 3 °C warmer than MERRA-2.
+  - At the −40 °C limit, April is better.
+- **Vestfold Hills in Antarctica is a candidate.** The Sun stays low around local midnight at the turn of the year, and the wind chill is mild.
+- **The ground is snow-covered in every Arctic spring and autumn low-sun window.** The only low-sun month with less snow is August (patchy: 16% at Svalbard, 41% on Ellesmere Island), and it is among the cloudiest months.
+
+**Checks that were run**
+- An independent calculation with NREL SPA sun positions at 1-minute steps gives the same usable days for Ellesmere Island in 2020 under all four presets, and differs on 1 to 3 marginal days at Vestfold Hills.
+- Hours with the Sun in the band are not less cloudy than other hours of the same month, so the cloud data shows no low-sun bias in favour of the result.
+- Requiring the Sun to be at least 1° or 2° above the horizon lowers the best-window values by 0.1 to 0.6 days of 14 and does not change the ranking.
+- Against approximate station normals, MERRA-2 is within about 2 to 4 °C at the Arctic sites checked (Resolute, Svalbard Airport, Station Nord).
+
+**Limits found**
+- **Weather grid cells.** Only 3 of the 14 site cells are at least half bare land (Arizona, Svalbard, Devon Island). 8 are mixed with ice or ocean. 3 are ice sheet with no bare land: McMurdo Dry Valleys, Schirmacher Oasis and Peary Land. At the Dry Valleys and Schirmacher, MERRA-2 is 7 to 12 °C too cold in summer, so their usable days are too pessimistic. Peary Land's result is the highest in the set and rests on a cell that is 80% ice, so treat it with caution.
+- **Cloud accuracy** is lowest when the Sun is near the horizon, and it was not compared with ground observations.
+- **10 seasons** are few. Usable days in the best window vary from about 1 to 7 between years.
 
 ## Sources
 - NASA POWER daily API: https://power.larc.nasa.gov/docs/services/api/temporal/daily/
+- NASA POWER hourly API: https://power.larc.nasa.gov/docs/services/api/temporal/hourly/
+- MODIS/Terra `MOD10CM` v061 (monthly snow cover): https://doi.org/10.5067/MODIS/MOD10CM.061
+- MERRA-2 `M2C0NXASM` (surface type of each cell): https://doi.org/10.5067/ME5QX6Q5IGGU
 - NASA POWER overview: https://www.earthdata.nasa.gov/learn/articles/power-overview
 - MERRA-2 `M2T1NXSLV` (wind, air temperature): https://doi.org/10.5067/VJAFPLI1CSIV
 - MERRA-2 `M2T1NXFLX` (precipitation): https://doi.org/10.5067/7MCPBJ41Y0K6
