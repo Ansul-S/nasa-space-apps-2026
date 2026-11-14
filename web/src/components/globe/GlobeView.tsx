@@ -31,6 +31,11 @@ interface GlobeViewProps {
   /** Pixels to shift the globe's centre to the left, clear of a side panel. */
   centerOffset?: number;
   reducedMotion?: boolean;
+  /**
+   * False for an illustration: no dragging, zoom buttons or focusable
+   * markers, so the page scrolls over it as over an image.
+   */
+  interactive?: boolean;
   onMarker?: (id: string) => void;
   onPick?: (point: LatLon) => void;
   label: string;
@@ -50,6 +55,7 @@ export default function GlobeView({
   active = true,
   centerOffset = 0,
   reducedMotion = false,
+  interactive = true,
   onMarker,
   onPick,
   label,
@@ -127,13 +133,27 @@ export default function GlobeView({
   }, [focus]);
 
   return (
-    <div className={cn("absolute inset-0 overflow-hidden", className)}>
+    <div
+      className={cn("absolute inset-0 overflow-hidden", className)}
+      role={interactive ? undefined : "img"}
+      aria-label={interactive ? undefined : label}
+    >
       <div
         ref={hostRef}
-        tabIndex={0}
-        aria-roledescription="globe"
-        aria-label={`${label}. Drag or use the arrow keys to turn, scroll or press plus and minus to zoom, N for north up.`}
-        className="absolute inset-0 cursor-grab touch-none outline-none select-none active:cursor-grabbing focus-visible:shadow-[inset_0_0_0_2px_var(--color-sun)]"
+        tabIndex={interactive ? 0 : undefined}
+        inert={!interactive}
+        aria-roledescription={interactive ? "globe" : undefined}
+        aria-label={
+          interactive
+            ? `${label}. Drag or use the arrow keys to turn, scroll or press plus and minus to zoom, N for north up.`
+            : undefined
+        }
+        className={cn(
+          "absolute inset-0 outline-none select-none",
+          interactive
+            ? "cursor-grab touch-none active:cursor-grabbing focus-visible:shadow-[inset_0_0_0_2px_var(--color-sun)]"
+            : "pointer-events-none",
+        )}
       >
         <canvas
           ref={canvasRef}
@@ -146,20 +166,23 @@ export default function GlobeView({
       </div>
       {failed && (
         <div className="absolute inset-0 grid place-items-center p-8 text-center text-[13px] text-ink-3">
-          This browser could not start WebGL, so the globe is not shown. The ranked list and site pages still work.
+          This browser could not start WebGL, so the globe is not shown.
+          {interactive && " The ranked list and site pages still work."}
         </div>
       )}
-      <div className="absolute top-1/2 right-3 z-[4] flex -translate-y-1/2 flex-col gap-1.5 lg:right-auto lg:left-4">
-        <GlobeButton label="Zoom in" className="max-sm:hidden" onClick={() => globeRef.current?.zoomBy(0.8)}>
-          <path d="M7 2.5v9M2.5 7h9" />
-        </GlobeButton>
-        <GlobeButton label="Zoom out" className="max-sm:hidden" onClick={() => globeRef.current?.zoomBy(1.25)}>
-          <path d="M2.5 7h9" />
-        </GlobeButton>
-        <GlobeButton label="North up" onClick={() => globeRef.current?.northUp()}>
-          <path d="M7 1.8 10 11 7 9.2 4 11z" fill="currentColor" stroke="none" />
-        </GlobeButton>
-      </div>
+      {interactive && (
+        <div className="absolute top-1/2 right-3 z-[4] flex -translate-y-1/2 flex-col gap-1.5 lg:right-auto lg:left-4">
+          <GlobeButton label="Zoom in" className="max-sm:hidden" onClick={() => globeRef.current?.zoomBy(0.8)}>
+            <path d="M7 2.5v9M2.5 7h9" />
+          </GlobeButton>
+          <GlobeButton label="Zoom out" className="max-sm:hidden" onClick={() => globeRef.current?.zoomBy(1.25)}>
+            <path d="M2.5 7h9" />
+          </GlobeButton>
+          <GlobeButton label="North up" onClick={() => globeRef.current?.northUp()}>
+            <path d="M7 1.8 10 11 7 9.2 4 11z" fill="currentColor" stroke="none" />
+          </GlobeButton>
+        </div>
+      )}
     </div>
   );
 }

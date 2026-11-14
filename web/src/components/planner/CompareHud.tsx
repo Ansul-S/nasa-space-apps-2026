@@ -8,7 +8,7 @@ export const sunState = (elevation: number, bandMax: number, bandMin = 0): SunSt
 
 const STATE_LABEL: Record<SunState, string> = { below: "Below horizon", in: "In band", above: "Above band" };
 
-function StateTag({ state }: { state: SunState }) {
+export function StateTag({ state }: { state: SunState }) {
   return (
     <span
       className={cn(
@@ -21,7 +21,7 @@ function StateTag({ state }: { state: SunState }) {
   );
 }
 
-function Chip({ children, className }: { children: React.ReactNode; className?: string }) {
+export function HudChip({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
     <div
       className={cn(
@@ -46,11 +46,11 @@ interface HudProps {
 export function SunHud({ title, elevation, state, rate, className }: HudProps) {
   return (
     <div className={cn("pointer-events-none flex flex-col gap-1.5", className)}>
-      <Chip className="text-[10.5px] tracking-[0.14em] text-ink-3 uppercase">{title}</Chip>
-      <Chip>
+      <HudChip className="text-[10.5px] tracking-[0.14em] text-ink-3 uppercase">{title}</HudChip>
+      <HudChip>
         Sun <b className="font-medium text-ink">{formatNumber(elevation, 1)}°</b> <StateTag state={state} />
-      </Chip>
-      <Chip className="max-sm:hidden">{rate}</Chip>
+      </HudChip>
+      <HudChip className="max-sm:hidden">{rate}</HudChip>
     </div>
   );
 }

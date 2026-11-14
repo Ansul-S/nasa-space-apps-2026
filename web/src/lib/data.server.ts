@@ -6,6 +6,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 import { SCHEMA_VERSION, type AnalogIndex, type SiteDetail } from "./data";
+import type { PhotoSet } from "./photos";
 
 const DATA_DIR = path.join(process.cwd(), "public", "data");
 
@@ -27,4 +28,10 @@ export function loadIndex(): Promise<AnalogIndex> {
 export function loadSite(id: string): Promise<SiteDetail> {
   if (!/^[a-z0-9-]+$/.test(id)) throw new Error(`Invalid site id: ${id}`);
   return readJson<SiteDetail>(path.join("sites", `${id}.json`));
+}
+
+/** Photo credits and files written by scripts/build_photos.py. */
+export async function loadPhotos(): Promise<PhotoSet> {
+  const file = path.join(process.cwd(), "public", "photos", "photos.json");
+  return JSON.parse(await readFile(file, "utf8")) as PhotoSet;
 }

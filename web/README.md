@@ -26,8 +26,11 @@ pnpm lint
 - `src/lib/orbit.ts`: globe geometry and the camera orbit, which can pass over the poles.
 - `src/lib/planner.ts`: the planner's slice of `index.json`, the ranking, and sun-band hours for any searched point.
 - `src/lib/search.ts`: search over the sites and Moon features, plus places on Earth from the Photon geocoder.
+- `src/lib/story.ts`: every figure the landing story quotes, read from the pipeline output, and the clock of the story's globe. `story.test.ts` checks the figures.
+- `src/lib/photos.ts`: types and helpers for the story photographs in `public/photos/`.
 - `src/components/globe/`: the three.js globe (`Globe.ts`, shaders) and its React wrapper.
 - `src/components/planner/`: the planner screen: controls, ranked list, clock, search and point cards.
+- `src/components/story/`: the landing story: photo hero, the Moon's low Sun, lamp-lit tests on Earth, the scroll-driven globe, the sun chart, the weather cards and the closing sections.
 
 ## Textures
 
@@ -35,4 +38,12 @@ pnpm lint
 
 ```bash
 python3 scripts/build_textures.py --cache <download dir>   # needs numpy and Pillow
+```
+
+## Photographs
+
+`public/photos/` holds the story photographs from the NASA Image and Video Library (images.nasa.gov), resized for the web, and `photos.json` with each photo's credit, date, NASA ID and source page. `scripts/build_photos.py` downloads the originals and rebuilds them:
+
+```bash
+python3 scripts/build_photos.py --cache <download dir>   # needs Pillow
 ```

@@ -26,6 +26,7 @@ export async function SiteFooter() {
             LOLA elevation). Sun on the Moon: astronomy-engine with the IAU rotation model. Moon feature positions: USGS
             Gazetteer of Planetary Nomenclature (IAU). Place search: Photon, © OpenStreetMap contributors.
           </p>
+          <p>Photographs: NASA Image and Video Library (images.nasa.gov), credited where they appear.</p>
         </div>
       </div>
     </footer>

@@ -38,6 +38,37 @@
 
   --shadow-float: 0 10px 40px -12px rgb(0 0 0 / 0.8);
   --shadow-sun: 0 10px 40px -10px rgb(246 182 90 / 0.6);
+
+  /* Story: the hero photo settles in, text rises after it, the scroll cue bobs. */
+  --animate-settle: settle 2.6s var(--ease-soft) both;
+  --animate-rise: rise 0.9s var(--ease-soft) both;
+  --animate-bob: bob 2.4s var(--ease-soft) infinite;
+
+  @keyframes settle {
+    from {
+      transform: scale(1.07);
+      opacity: 0;
+    }
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+  @keyframes rise {
+    from {
+      transform: translateY(14px);
+      opacity: 0;
+    }
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+  @keyframes bob {
+    50% {
+      transform: translateY(3px);
+    }
+  }
 }
 
 @theme inline {
@@ -327,6 +358,7 @@
   *::before,
   *::after {
     animation-duration: 0.001ms !important;
+    animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
