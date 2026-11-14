@@ -1,0 +1,134 @@
+{
+ "jett3-night-run": {
+  "nasa_id": "WJS_6267",
+  "title": "WJS_6267",
+  "date": "2022-10-09",
+  "center": "JSC",
+  "credit": "NASA/Bill Stafford",
+  "url": "https://images.nasa.gov/details/WJS_6267",
+  "width": 4758,
+  "height": 3172,
+  "files": [
+   {
+    "width": 1280,
+    "src": "/photos/jett3-night-run-1280.jpg"
+   },
+   {
+    "width": 1920,
+    "src": "/photos/jett3-night-run-1920.jpg"
+   },
+   {
+    "width": 2560,
+    "src": "/photos/jett3-night-run-2560.jpg"
+   }
+  ]
+ },
+ "jett3-night-crew": {
+  "nasa_id": "WJS_5929",
+  "title": "WJS_5929",
+  "date": "2022-10-09",
+  "center": "JSC",
+  "credit": "NASA/Bill Stafford",
+  "url": "https://images.nasa.gov/details/WJS_5929",
+  "width": 4640,
+  "height": 3712,
+  "files": [
+   {
+    "width": 720,
+    "src": "/photos/jett3-night-crew-720.jpg"
+   },
+   {
+    "width": 1280,
+    "src": "/photos/jett3-night-crew-1280.jpg"
+   }
+  ]
+ },
+ "nbl-lighting": {
+  "nasa_id": "jsc2022e001695",
+  "title": "Shadow Assessment",
+  "date": "2021-12-08",
+  "center": "JSC",
+  "credit": "NASA/Lauren Maples",
+  "url": "https://images.nasa.gov/details/jsc2022e001695",
+  "width": 5720,
+  "height": 3818,
+  "files": [
+   {
+    "width": 720,
+    "src": "/photos/nbl-lighting-720.jpg"
+   },
+   {
+    "width": 1280,
+    "src": "/photos/nbl-lighting-1280.jpg"
+   }
+  ]
+ },
+ "msfc-flat-floor": {
+  "nasa_id": "CEB_1528",
+  "title": "NASA Engineers Simulate Lunar Lighting for Artemis III Moon Landing",
+  "date": "2025-05-09",
+  "center": "MSFC",
+  "credit": "NASA/Charles Beason",
+  "url": "https://images.nasa.gov/details/CEB_1528",
+  "width": 3600,
+  "height": 2400,
+  "files": [
+   {
+    "width": 720,
+    "src": "/photos/msfc-flat-floor-720.jpg"
+   },
+   {
+    "width": 1280,
+    "src": "/photos/msfc-flat-floor-1280.jpg"
+   }
+  ]
+ },
+ "artemis2-moon": {
+  "nasa_id": "art002e009283",
+  "title": "Ready for a Close Up",
+  "date": "2026-04-06",
+  "center": "JSC",
+  "credit": "NASA",
+  "url": "https://images.nasa.gov/details/art002e009283",
+  "width": 5568,
+  "height": 3712,
+  "files": [
+   {
+    "width": 960,
+    "src": "/photos/artemis2-moon-960.jpg"
+   },
+   {
+    "width": 1600,
+    "src": "/photos/artemis2-moon-1600.jpg"
+   },
+   {
+    "width": 2400,
+    "src": "/photos/artemis2-moon-2400.jpg"
+   }
+  ]
+ },
+ "devon-k10": {
+  "nasa_id": "ARC-2007-ACD07-0170-005",
+  "title": "ARC-2007-ACD07-0170-005",
+  "date": "2007-07-19",
+  "center": "ARC",
+  "credit": "NASA/Matt Deans",
+  "url": "https://images.nasa.gov/details/ARC-2007-ACD07-0170-005",
+  "width": 3872,
+  "height": 2592,
+  "files": [
+   {
+    "width": 960,
+    "src": "/photos/devon-k10-960.jpg"
+   },
+   {
+    "width": 1600,
+    "src": "/photos/devon-k10-1600.jpg"
+   },
+   {
+    "width": 2400,
+    "src": "/photos/devon-k10-2400.jpg"
+   }
+  ]
+ }
+}
