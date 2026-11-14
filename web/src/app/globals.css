@@ -104,6 +104,15 @@
   }
 }
 
+/* SVG chart labels. Utilities such as fill-sun on a <text> override these. */
+@layer components {
+  .chart text {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    fill: var(--color-ink-3);
+  }
+}
+
 /* Page container with safe-area gutters. */
 @utility wrap {
   width: 100%;
