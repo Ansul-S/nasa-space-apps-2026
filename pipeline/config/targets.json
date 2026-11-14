@@ -1,0 +1,32 @@
+{
+  "source": "USGS Gazetteer of Planetary Nomenclature (IAU), feature centres, planetographic, +East",
+  "source_url": "https://planetarynames.wr.usgs.gov/",
+  "band_rule": "Sun elevation from 0 deg up to (90 - |target latitude|) + 1.5 deg (lunar axial tilt)",
+  "targets": [
+    {
+      "id": "mons-mouton",
+      "name": "Mons Mouton",
+      "body": "moon",
+      "lat": -84.60,
+      "lon": 31.00,
+      "gazetteer_id": 16070,
+      "band_max_deg": 6.9
+    },
+    {
+      "id": "mons-malapert",
+      "name": "Malapert Massif (Mons Malapert)",
+      "body": "moon",
+      "lat": -85.98,
+      "lon": -1.67,
+      "gazetteer_id": 16338,
+      "band_max_deg": 5.52
+    }
+  ],
+  "objectives": [
+    {
+      "id": "low-sun-nav-eva",
+      "name": "Navigation and EVA under low sun",
+      "seasonal_conditions": ["low_sun_hours", "clear_sky", "snow_free", "wind_chill"]
+    }
+  ]
+}

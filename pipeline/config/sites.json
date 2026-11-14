@@ -1,0 +1,23 @@
+{
+  "notes": [
+    "Coordinates are representative points for each area, accurate to about 0.1 deg. The weather grid is 0.5 deg x 0.625 deg (MERRA-2) and 1 deg (CERES), so finer precision does not change the results.",
+    "Land and land-ice fractions are checked against the MERRA-2 constants file before the results are used.",
+    "known_analog marks sites already used as Moon or Mars analogs in published field work. It is provisional until the known-sites list is decided."
+  ],
+  "sites": [
+    {"id": "sf-volcanic-field", "name": "San Francisco Volcanic Field, Arizona", "region": "North America", "lat": 35.35, "lon": -111.50, "role": "validation", "known_analog": true},
+    {"id": "iceland-highlands", "name": "Icelandic Highlands", "region": "Iceland", "lat": 65.03, "lon": -16.75, "role": "validation", "known_analog": true},
+    {"id": "svalbard", "name": "Svalbard (Adventdalen)", "region": "Svalbard", "lat": 78.20, "lon": 15.60, "role": "validation", "known_analog": true},
+    {"id": "devon-island", "name": "Devon Island (Haughton crater)", "region": "Canadian Arctic", "lat": 75.40, "lon": -89.80, "role": "validation", "known_analog": true},
+    {"id": "mcmurdo-dry-valleys", "name": "McMurdo Dry Valleys", "region": "Antarctica", "lat": -77.60, "lon": 162.50, "role": "validation", "known_analog": true},
+    {"id": "ellesmere-inland", "name": "Inland Ellesmere Island", "region": "Canadian Arctic", "lat": 81.00, "lon": -75.00, "role": "candidate", "known_analog": false},
+    {"id": "axel-heiberg", "name": "Axel Heiberg Island (Expedition Fiord)", "region": "Canadian Arctic", "lat": 79.42, "lon": -90.75, "role": "candidate", "known_analog": true},
+    {"id": "cornwallis-resolute", "name": "Cornwallis Island (Resolute)", "region": "Canadian Arctic", "lat": 74.70, "lon": -94.90, "role": "candidate", "known_analog": false},
+    {"id": "peary-land", "name": "Peary Land (Jørgen Brønlund Fjord)", "region": "Greenland", "lat": 82.17, "lon": -30.50, "role": "candidate", "known_analog": false},
+    {"id": "kronprins-christian-land", "name": "Kronprins Christian Land (Station Nord)", "region": "Greenland", "lat": 81.60, "lon": -16.70, "role": "candidate", "known_analog": false},
+    {"id": "franz-josef-land", "name": "Franz Josef Land (Hayes Island)", "region": "Russian Arctic", "lat": 80.62, "lon": 58.05, "role": "candidate", "known_analog": false},
+    {"id": "severnaya-zemlya", "name": "Severnaya Zemlya (Cape Baranov, Bolshevik Island)", "region": "Russian Arctic", "lat": 79.28, "lon": 101.60, "role": "candidate", "known_analog": false},
+    {"id": "schirmacher-oasis", "name": "Schirmacher Oasis", "region": "Antarctica", "lat": -70.75, "lon": 11.65, "role": "candidate", "known_analog": false},
+    {"id": "vestfold-hills", "name": "Vestfold Hills", "region": "Antarctica", "lat": -68.55, "lon": 78.20, "role": "candidate", "known_analog": false}
+  ]
+}

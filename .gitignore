@@ -1,0 +1,16 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Downloaded source data (large; recreated by the pipeline)
+pipeline/data/raw/
+
+# Node and Next.js build output
+node_modules/
+.next/
+out/
+
+# Local environment files
+.env*
