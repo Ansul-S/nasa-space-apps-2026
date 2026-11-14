@@ -1,6 +1,6 @@
 # 04 · Proposed Solution: Seasonal Analog Planner
 
-**Status:** proposal for team review. Nothing has been built. It is based on `01` (problem), `02` (user) and `03` (approaches). Updated 14 Nov 2026 with the decisions in `05_Additional_Features.md` §11 (summary in "Decisions made" below). The build order is not yet set.
+**Status:** proposal for team review. Nothing has been built. It is based on `01` (problem), `02` (user) and `03` (approaches). Updated 14 Nov 2026 with the decisions in `05_Additional_Features.md` §11 (summary in "Decisions made" below). The build order and the scope for the event are in `06_Roadmap.md`.
 
 ## In one sentence
 A **seasonal, test-first analog planner**:
@@ -167,14 +167,12 @@ Details in `05_Additional_Features.md` §11.
 2. **Check my site** is a second way into Feature 1, not a separate feature. The product has four features.
 3. **Clear sky** is a seasonal condition in version 1. It takes the fourth slot, and dust moves to the backlog.
 4. **Usable-day rule** for Feature 4 is approved, with a default wind chill limit of −28 °C for crewed tests (`05` §5).
-5. **Weather data** for Feature 4 comes from MERRA-2 and CERES in NASA Earthdata, not NASA POWER (`05` §8).
+5. **Weather data** for Feature 4 comes from MERRA-2 and CERES in NASA Earthdata, not NASA POWER (`05` §8). For the event this is time-boxed: if the download test fails, the NASA POWER hourly API is the fallback (`06`).
+6. **Roadmap** (`06_Roadmap.md`): a thin end-to-end version first, then widen. About 17 hours, one developer.
+7. **Scope for the event:** one objective (navigation and EVA under low sun), two lunar targets (Mons Mouton, Malapert Massif) and about 12 curated sites. Mars is a stretch goal, built only if ahead of schedule at the T+10 h checkpoint.
+8. **Stack:** a Python pipeline that calculates everything in advance, and a static Next.js website.
 
 ## Open decisions for the team
-1. Confirm the primary user (`02`).
-2. Confirm the 3 test objectives for the first version.
-3. Choose 2–3 lunar target regions (of the 9) and 1–2 Mars targets.
-4. Build order and roadmap.
-5. Keep or replace the USGS known-sites list, and check whether the rules allow sources outside the official list (`05` §8).
-6. Hackathon dates, time budget and team roles.
-7. Product name.
-8. Can we test the user journey with one real test engineer or analog researcher?
+1. Keep or replace the USGS known-sites list, and check whether the rules allow sources outside the official list (`05` §8).
+2. Product name.
+3. Can we test the user journey with one real test engineer or analog researcher?

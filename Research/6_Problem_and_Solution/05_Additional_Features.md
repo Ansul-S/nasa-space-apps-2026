@@ -214,7 +214,7 @@ NASA POWER is not one of the 11 official resources. It repackages two datasets t
 - **`04_Proposed_Solution.md`:** the feature list grows from three to four. The USP becomes: "Where and when on Earth should we test this, how faithful will it be, and how many usable days will we get?"
 - **Check my site** becomes a second way into Feature 1.
 - **Clear sky becomes a seasonal condition** in the calendar and takes the fourth slot, because §3 shows the lighting result is wrong without it. Dust moves to the backlog.
-- **Build order:** not yet set. It follows the team roadmap. The earlier proposal was features 1–3 first, then check my site, then campaign odds, which needs MERRA-2 and CERES data prepared in advance.
+- **Build order:** set in `06_Roadmap.md`. A thin end-to-end version of all four features comes first, and the data downloads are tested before any app code is written.
 - **Scope guard:** four features is the limit. Everything else stays in the backlog.
 
 ## 10. Risks
@@ -236,11 +236,14 @@ NASA POWER is not one of the 11 official resources. It repackages two datasets t
 4. **The usable-day rule** in §5 is approved. The default cold limit for crewed tests is a wind chill of −28 °C; −40 °C is an option the user must choose, with a warning.
 5. **Feature 4 data** comes from MERRA-2 and CERES in NASA Earthdata, not NASA POWER (§8).
 
+6. **Roadmap** is set in `06_Roadmap.md`: a thin end-to-end version first, then widen.
+7. **Feature 4 data for the event:** MERRA-2 and CERES are tried first, in a 90-minute download test. Each variable that fails switches to the NASA POWER hourly API, which repackages the same two datasets. The source is shown on every result.
+8. **Mars** is a stretch goal for the event, built only if ahead of schedule at the T+10 h checkpoint.
+
 **Still open**
-1. Build order and roadmap (team).
-2. Keep the USGS known-sites list, which is outside the official list, or replace it with our own list (§8).
-3. Check whether the challenge rules allow free sources outside the official list (§8).
-4. Before the pitch: recalculate the §3 numbers from hourly MERRA-2 and CERES data and compare them with ground observations.
+1. Keep the USGS known-sites list, which is outside the official list, or replace it with our own list (§8).
+2. Check whether the challenge rules allow free sources outside the official list (§8).
+3. Before the pitch: recalculate the §3 numbers from hourly data. Comparison with ground observations is not in scope for the event (`06`).
 
 ## Sources
 - NASA POWER daily API: https://power.larc.nasa.gov/docs/services/api/temporal/daily/

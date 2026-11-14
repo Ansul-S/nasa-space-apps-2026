@@ -75,7 +75,7 @@ Lunar polar lighting is the clearest case, and today it is **faked with artifici
 **What the table shows:**
 - **Flagstaff:** about 1.2 h a day, split into two ~39-minute windows at dawn and dusk, all year. This explains why NASA tests there at night with a spotlight.
 - **High-latitude polar deserts:** **5–10 hours a day in specific months.** One unbroken window around local midnight, e.g. Svalbard mid-August, 20:17–03:44 solar time.
-- **Sky cover changes the ranking.** These hours are geometry only. Svalbard's August sky is about 82% cloud-covered, so a typical 14-day campaign there gets 0 usable low-sun days. Ellesmere Island (81°N) in March–April gets 6–7. See `05_Additional_Features.md` §3.
+- **Sky cover changes the ranking.** These hours are geometry only. Svalbard's August sky is about 82% cloud-covered, so a typical 14-day campaign there gets 0 usable low-sun days. Ellesmere Island (81°N) in March–April gets 6–7 under the first version of the rule. Under the approved rule, with a −28 °C wind chill limit, April keeps 2 (strict cloud) to 4 (relaxed cloud), and March drops to 0. See `05_Additional_Features.md` §3.
 - **Combined conditions vary too.** Snow cover, frozen ground and temperature change by month. A site may meet the lighting condition only in weeks when it's also snow-free, or never.
 - **No prior field work found.** We found no published study that tested rover cameras or navigation at a high-latitude site timed to these low-sun windows.
 
