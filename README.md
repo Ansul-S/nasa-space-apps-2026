@@ -117,6 +117,8 @@ GitHub Actions runs the pipeline and website tests on every push.
 
 **Live site:** https://nasa-space-apps-2026-liart.vercel.app/
 
+**Demo video (30 s):** https://drive.google.com/file/d/1rf3Qz4TJ5HZ-Tp0REBd9O-GFiZHtVyp0/view
+
 - Open the Earth and Moon comparison directly: https://nasa-space-apps-2026-liart.vercel.app/planner/?view=compare
 - A site page: https://nasa-space-apps-2026-liart.vercel.app/sites/ellesmere-inland/
 
