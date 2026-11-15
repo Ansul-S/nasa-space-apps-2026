@@ -1,0 +1,54 @@
+name: Tests
+
+# Runs on every push and pull request. The pipeline tests that need the
+# downloaded raw data (pipeline/tests/test_validation.py) skip themselves here;
+# the website tests recheck the same headline figures against the published
+# JSON in web/public/data.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    name: Website
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Install pnpm (version from package.json)
+        run: npm install --global "$(node -p "require('./package.json').packageManager")"
+      - run: pnpm install --frozen-lockfile
+      - name: Unit tests and data checks
+        run: pnpm test
+      - run: pnpm lint
+      - name: Static build
+        run: pnpm build
+      - name: Type check
+        run: pnpm typecheck
+
+  pipeline:
+    name: Pipeline
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pipeline
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
+      - run: uv sync --locked
+      - name: Tests (raw-data checks skip without pipeline/data/raw)
+        run: uv run pytest -q

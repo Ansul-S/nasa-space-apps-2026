@@ -21,7 +21,7 @@ import { FIELD_SEASON, repoFile, SUN_TESTS, type MethodsData } from "@/lib/metho
 export type CheckStatus = "automated" | "once" | "not_run";
 
 const STATUS: Record<CheckStatus, { label: string; legend: string; text: string }> = {
-  automated: { label: "Automated test", legend: "automated tests", text: "run with the test suites on every change" },
+  automated: { label: "Automated test", legend: "automated tests", text: "tests in the repository, run by GitHub Actions on every push" },
   once: { label: "Checked once", legend: "checked once", text: "on 14 Nov 2026, recorded in the pipeline README" },
   not_run: { label: "Not run", legend: "not run", text: "planned, but not run in this event" },
 };
@@ -191,6 +191,7 @@ export function Checks({ data, index }: { data: MethodsData; index: AnalogIndex 
   const [first, last] = data.years;
   const devon = shortName(data.sites.devon.name);
   const validationFile = testFile("pipeline/tests/test_validation.py");
+  const methodsTest = testFile("web/src/lib/methods.test.ts");
   const readme = repoFile("pipeline/README.md#checks-and-findings");
   const maxDays = Math.max(...data.ellesmere.map((c) => Math.max(c.march, c.april)));
   const chillDefault = index.presets.find((p) => p.default)?.wind_chill_min_c ?? null;
@@ -199,8 +200,10 @@ export function Checks({ data, index }: { data: MethodsData; index: AnalogIndex 
     <section id="checks" aria-labelledby="checks-title" className="py-[clamp(72px,11vh,120px)]">
       <div className="wrap">
         <SectionHead id="checks-title" eyebrow="01 · Validation" title="We tested the method before trusting it">
-          Each check states what we expected and what the data gives. Automated checks run with the test suites on
-          every change, so a broken result fails the build of the data. The links open the test or record on GitHub.
+          Each check states what we expected and what the data gives. Automated checks are tests in the repository.
+          On every push, GitHub Actions reruns the website&apos;s tests, which recheck these figures against the published
+          data, and the pipeline tests that need no raw data. The checks on the downloaded raw data run before each data
+          release. The links open each test on GitHub.
         </SectionHead>
 
         <ul className="mb-8 flex flex-wrap gap-x-6 gap-y-2" aria-label="Checks by status">
@@ -227,6 +230,7 @@ export function Checks({ data, index }: { data: MethodsData; index: AnalogIndex 
               </>
             }
             evidence={[
+              ["methods.test.ts", methodsTest],
               ["test_validation.py", validationFile],
               ["test_terrain.py", testFile("pipeline/tests/test_terrain.py")],
             ]}
@@ -257,7 +261,10 @@ export function Checks({ data, index }: { data: MethodsData; index: AnalogIndex 
             status="automated"
             title={<>{shortName(data.sites.svalbard.name)} in August: zero</>}
             expected="No usable day in a typical August campaign, whatever the preset."
-            evidence={[["test_validation.py", validationFile]]}
+            evidence={[
+              ["methods.test.ts", methodsTest],
+              ["test_validation.py", validationFile],
+            ]}
           >
             <Measured value="0" unit={`median usable days of ${data.campaignDays}`} muted />
             <p>
@@ -272,7 +279,10 @@ export function Checks({ data, index }: { data: MethodsData; index: AnalogIndex 
             status="automated"
             title={<>{shortName(data.sites.ellesmere.name)}: April beats March</>}
             expected={`At the ${formatTemp(chillDefault, 0)} wind-chill limit, April gives more usable days than March, as the first estimate found.`}
-            evidence={[["test_validation.py", validationFile]]}
+            evidence={[
+              ["methods.test.ts", methodsTest],
+              ["test_validation.py", validationFile],
+            ]}
           >
             <ul className="flex flex-col gap-2.5" aria-label="Expected usable days, March and April">
               {data.ellesmere.map((c) => (
@@ -319,7 +329,10 @@ export function Checks({ data, index }: { data: MethodsData; index: AnalogIndex 
             status="automated"
             title="No hindsight in the best window"
             expected="Picking the best of 365 start days flatters its mean, so we quote a held-out figure instead."
-            evidence={[["test_odds.py", testFile("pipeline/tests/test_odds.py")]]}
+            evidence={[
+              ["methods.test.ts", methodsTest],
+              ["test_odds.py", testFile("pipeline/tests/test_odds.py")],
+            ]}
           >
             <Measured value={formatNumber(ho.meanInflation)} unit="days removed on average" />
             <p>
@@ -337,7 +350,7 @@ export function Checks({ data, index }: { data: MethodsData; index: AnalogIndex 
             title={<>{devon}: snow-free in its field season</>}
             expected={`The ${FIELD_SEASON.name} works on Devon Island in July and August, so the data should show bare ground then.`}
             evidence={[
-              ["methods.test.ts", testFile("web/src/lib/methods.test.ts")],
+              ["methods.test.ts", methodsTest],
               ["NASA Ames, 2010", FIELD_SEASON.url],
             ]}
           >
