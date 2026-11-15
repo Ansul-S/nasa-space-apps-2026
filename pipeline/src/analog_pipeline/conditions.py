@@ -6,6 +6,12 @@ Match levels for conditions measured as a share of days or hours:
 - breaks_down: under 20%
 Snow-covered ground counts as breaks_down for a lunar target, because snow hides
 the terrain and is far brighter than lunar regolith.
+
+Terrain compares the slope distributions of the target and the site
+(Kolmogorov-Smirnov distance, see fetch_terrain):
+- match: they differ by at most 0.2 (20 percentage points) at any slope
+- partial: up to 0.5
+- breaks_down: more than 0.5
 """
 
 from __future__ import annotations
@@ -23,6 +29,8 @@ CLOUD_LIMITS = sorted({p.cloud_max_pct for p in PRESETS})
 WIND_CHILL_LIMITS = sorted({p.wind_chill_min_c for p in PRESETS})
 POLAR_NIGHT_SHARE = 0.5
 EXTREME_COLD_C = -40.0
+TERRAIN_MATCH_KS = 0.2
+TERRAIN_PARTIAL_KS = 0.5
 MONTHS = range(1, 13)
 
 
@@ -31,6 +39,16 @@ def _r(x, nd: int = 2):
         return None
     x = float(x)
     return None if np.isnan(x) else round(x, nd)
+
+
+def terrain_level(ks: float | None) -> str:
+    if ks is None or np.isnan(ks):
+        return "not_calculated"
+    if ks <= TERRAIN_MATCH_KS:
+        return "match"
+    if ks <= TERRAIN_PARTIAL_KS:
+        return "partial"
+    return "breaks_down"
 
 
 def level_from_share(share: float | None) -> str:

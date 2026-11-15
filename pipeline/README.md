@@ -6,10 +6,11 @@ Calculates, for each Earth site and lunar target, when the Sun sits in the targe
 ```sh
 cd pipeline
 uv sync
-uv run python -m analog_pipeline.build      # writes ../web/public/data
+uv run python -m analog_pipeline.fetch_terrain   # writes config/terrain.json (about 1 minute)
+uv run python -m analog_pipeline.build           # writes ../web/public/data
 uv run pytest -q
 ```
-The build reads the downloaded data in `data/raw/` (not in the repository). The download commands are in the docstrings of `fetch_merra2.py`, `fetch_power.py` and `fetch_snow.py`. The validation tests skip themselves when the raw data is missing.
+The build reads the downloaded data in `data/raw/` (not in the repository). The download commands are in the docstrings of `fetch_merra2.py`, `fetch_power.py` and `fetch_snow.py`. The validation tests skip themselves when the raw data is missing. `fetch_terrain.py` needs no account; it caches its elevation patches in `data/raw/terrain/`, and the build reads its result from `config/terrain.json`.
 
 ## Data
 | Condition | Source | Grid | Time step |
@@ -20,6 +21,8 @@ The build reads the downloaded data in `data/raw/` (not in the repository). The 
 | Precipitation | MERRA-2 `PRECTOTCORR`, through the NASA POWER hourly API | 0.5° × 0.625° | 1 h |
 | Snow cover | MODIS/Terra `MOD10CM` v061, mean of the 5 × 5 pixels around the site | 0.05° | 1 month |
 | Surface type of each weather cell | MERRA-2 `M2C0NXASM` v5.12.4, stored in `config/merra2_cells.json` by `fetch_constants.py` | 0.5° × 0.625° | Fixed |
+| Terrain at the lunar targets | LRO LOLA polar elevation model `LDEM_80S_40M` (PDS Geosciences Node), read by HTTP range request | 40 m | Fixed |
+| Terrain at the Earth sites | Copernicus DEM GLO-30 (ESA; AWS Open Data copy of the cloud-optimised tiles), averaged onto a 40 m grid | 30 m | Fixed |
 
 Record: 2016-01-02 to 2025-12-30 (10 years, 3,651 local days).
 
@@ -54,7 +57,9 @@ Wind chill uses the Environment Canada / US National Weather Service formula. Th
 
 **Score.** The share of usable days in the calendar month, from 0 to 1, for one target and preset. The ranked list sorts by it.
 
-**Match levels.** For conditions measured as a share of days or hours: `match` at 80% or more, `partial` from 20% to 80%, `breaks_down` under 20%. Ground: snow-free (under 10% snow) is `match`, patchy (10–50%) is `partial`, snow-covered (50% or more) is `breaks_down`. Sun motion and sky light are always `breaks_down`. Gravity, vacuum and radiation are always `impossible`. Terrain is `not_calculated` in this version.
+**Terrain slope.** A 10 km × 10 km box is centred on each target and site and sampled on a 40 m grid: the LOLA polar stereographic grid on the Moon (pixel size corrected for the projection scale, under 0.2% at these latitudes), and on Earth the Copernicus DEM averaged into a 40 m azimuthal equidistant grid centred on the site. Sea pixels (0.5 m or lower) are removed. Slope uses Horn's 3 × 3 method, so both bodies are measured at the same baseline. Each box gives the median and 90th-percentile slope, the share steeper than 15°, the relief and a 2° histogram. The site and target distributions are compared with the Kolmogorov-Smirnov distance: the largest difference, over all slopes, between the shares of ground below that slope.
+
+**Match levels.** For conditions measured as a share of days or hours: `match` at 80% or more, `partial` from 20% to 80%, `breaks_down` under 20%. Ground: snow-free (under 10% snow) is `match`, patchy (10–50%) is `partial`, snow-covered (50% or more) is `breaks_down`. Terrain: `match` when the Kolmogorov-Smirnov distance is 0.2 or less, `partial` up to 0.5, `breaks_down` above; the level is the same in every month. Sun motion and sky light are always `breaks_down`. Gravity, vacuum and radiation are always `impossible`.
 
 **Flags.** `polar_night`: the Sun stays below the horizon all day on at least half the days of the month. `extreme_cold`: the median hourly wind chill of the month is below −40 °C.
 
@@ -66,17 +71,20 @@ All monthly arrays have 12 entries, January first. Missing values are `null`.
 |---|---|
 | `period` | `start`, `end`, `days`, `years` of the record |
 | `campaign_days`, `min_usable_days` | 14 and 3 |
-| `targets[]` | `id`, `name`, `body`, `lat`, `lon`, `band_min_deg`, `band_max_deg`, `sun_rate_deg_per_h` (on the Moon) |
+| `targets[]` | `id`, `name`, `body`, `lat`, `lon`, `band_min_deg`, `band_max_deg`, `sun_rate_deg_per_h` (on the Moon), `terrain` (see below) |
 | `objectives[]` | From `config/targets.json` |
 | `presets[]` | `id`, `label`, `cloud_max_pct`, `wind_chill_min_c`, `default`, `warning` |
 | `rule`, `thresholds`, `levels` | The rule and threshold values above, and a description of each match level |
 | `fidelity_rows[]` | Card rows in display order: `id`, `label`, `kind` (`fidelity`, `earth_only`, `operations`), optional `source`, fixed `level` and `note` |
 | `sources` | Source id → `name`, `detail` (including the grid), `url` |
-| `sites[]` | `id`, `name`, `region`, `lat`, `lon`, `role` (`validation` or `candidate`), `known_analog`, `utc_offset_solar_h`, `weather_cell_class` |
+| `terrain` | `method`, `grid_m`, `box_km`, `steep_deg`, `hist_edges_deg`, or `null` before `fetch_terrain` has run |
+| `sites[]` | `id`, `name`, `region`, `lat`, `lon`, `role` (`validation` or `candidate`), `known_analog`, `utc_offset_solar_h`, `weather_cell_class`, `terrain` |
 | `weather_cell_classes` | Class → text to show with the result |
 | `scores[target][preset][site]` | `score`, `median`, `p10`, `p90`, `p_at_least` (monthly arrays) and `best_window` |
 | `conditions[target][site]` | `band_hours`, `window_days_share` (monthly arrays) |
 | `site_conditions[site]` | `cloud_mean_pct`, `snow_pct`, `wind_chill_median_c`, `flags` (monthly arrays) |
+
+`terrain` on a target or site: `land_share`, `median_slope_deg`, `p90_slope_deg`, `steep_share` (steeper than `steep_deg`), `relief_m`, `hist_share` (share in each 2° bin from `hist_edges_deg`, then one bin above 40°), or `null`.
 
 ### `sites/<site id>.json`
 | Key | Content |
@@ -86,8 +94,9 @@ All monthly arrays have 12 entries, January first. Missing values are `null`.
 | `snow_note` | Why snow is not measured, or `null` |
 | `months[]` | Site conditions per month: `sun_min_deg`, `sun_max_deg` (mean daily extremes), `polar_night_share`, `cloud_mean_pct`, `clear_hours_share` {"30", "50"}, `dry_days_share`, `t2m_mean_c`, `wind_mean_ms`, `wind_chill_median_c`, `wind_chill_p10_c`, `wind_chill_ok_share` {"-28", "-40"}, `snow_pct` (median of the years), `snow_class` (`snow_free`, `patchy`, `snow_covered` or `null`), `snow_years` (one value per year), `flags` |
 | `targets[target].months[]` | `band_hours` (mean hours per day in the band), `longest_window_hours`, `window_days_share` (days with a stretch of 2 h or more), `sun_rate_deg_per_h` (mean azimuth speed in the band), `level` (sun band match level) |
-| `targets[target].presets[preset].months[]` | `usable_share`, `score`, `odds` {`mean`, `median`, `p10`, `p90`, `p_at_least`, `n`, `years`}, `levels` {`sun_band`, `clear_sky`, `ground`, `wind_chill`, `sun_motion`, `sky_light`} |
+| `targets[target].presets[preset].months[]` | `usable_share`, `score`, `odds` {`mean`, `median`, `p10`, `p90`, `p_at_least`, `n`, `years`}, `levels` {`sun_band`, `clear_sky`, `ground`, `wind_chill`, `sun_motion`, `sky_light`, `terrain`} |
 | `targets[target].presets[preset].best_window` | `start`, `end` ("MM-DD"), `mean`, `median`, `p10`, `p90`, `p_at_least`, `n`, `held_out_mean`, or `null` |
+| `targets[target].terrain` | `ks` (Kolmogorov-Smirnov distance between the site's and the target's slope distributions) and `level` |
 | `targets[target].daily_usable` | One hex digit per day from `period.start`; bit *i* is set when the day is usable under `presets[i]` (index order). Lets the website compute other campaign lengths and start dates. |
 | `sun_samples` | For the 15th of each month of 2025: `elevation` and `azimuth` every `step_min` minutes from local solar midnight, and `windows[target]` as [start, end) minute pairs in the band |
 
@@ -97,6 +106,8 @@ Checks run on the results (14 Nov 2026):
 - Hours with the Sun in the band are not less cloudy than other hours of the same month, so the cloud data shows no low-sun bias in favour of the result.
 - Requiring the Sun to be at least 1° or 2° up lowers the best-window means by 0.1 to 0.6 days of 14 and does not change the ranking.
 - MERRA-2 is within about 2 to 4 °C of station normals at the Arctic sites checked, and 7 to 12 °C too cold in summer at the two Antarctic sites classed `not_representative`.
+
+Terrain (15 Nov 2026). Mons Mouton's plateau top has a median slope of 5.9° (90% under 10.9°); Malapert's summit 18.9° (90% under 25.6°). Against Mons Mouton, the San Francisco Volcanic Field matches on terrain (distance 0.19) while it fails on lighting in every month, as the roadmap's Arizona check expects. Peary Land (0.14) and Vestfold Hills (0.17) also match; the flat coastal plains at Station Nord and Cape Baranov break down. No site matches Malapert; the mountainous sites (Svalbard, Axel Heiberg, Ellesmere, McMurdo) are partial.
 
 Spring and autumn in the High Arctic, at the −28 °C wind chill limit (Ellesmere Island, usable days in April against 15 September to 14 October):
 - **Relaxed cloud:** autumn is better. It has more usable days in 10 of 10 years (122 against 76 in total).
@@ -112,3 +123,6 @@ Spring and autumn in the High Arctic, at the −28 °C wind chill limit (Ellesme
 - Precipitation poleward of 62.5° is model output without rain-gauge correction.
 - 10 years give 10 seasons, so the 10th and 90th percentiles are uncertain.
 - Flat horizon: local terrain can block the low Sun.
+- Terrain compares slope only, in one 10 km box per place. Roughness, rocks and boulders at scales finer than 40 m are not compared.
+- The LOLA grid is interpolated between altimeter tracks, which can smooth slopes on the Moon side.
+- The Copernicus DEM is a surface model: glacier and snow surfaces count as terrain. At Station Nord, Hayes Island and Cape Baranov less than half of the box is land.

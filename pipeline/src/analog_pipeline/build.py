@@ -29,9 +29,12 @@ from .conditions import (
     PARTIAL_SHARE,
     POLAR_NIGHT_SHARE,
     SNOW_FREE_PCT,
+    TERRAIN_MATCH_KS,
+    TERRAIN_PARTIAL_KS,
     preset_result,
     site_months,
     target_months,
+    terrain_level,
     years_of,
 )
 from .odds import CAMPAIGN_DAYS, MIN_USABLE
@@ -84,9 +87,12 @@ SOURCES = {
 }
 
 LEVELS = {
-    "match": f"Holds on at least {MATCH_SHARE:.0%} of days or hours",
-    "partial": f"Holds on {PARTIAL_SHARE:.0%} to {MATCH_SHARE:.0%}",
-    "breaks_down": f"Holds on under {PARTIAL_SHARE:.0%}, or differs in kind from the target",
+    "match": f"Holds on at least {MATCH_SHARE:.0%} of days or hours. Terrain: the slope distributions differ "
+    f"by at most {TERRAIN_MATCH_KS * 100:.0f} points at any slope",
+    "partial": f"Holds on {PARTIAL_SHARE:.0%} to {MATCH_SHARE:.0%}. Terrain: the slope distributions differ "
+    f"by at most {TERRAIN_PARTIAL_KS * 100:.0f} points",
+    "breaks_down": f"Holds on under {PARTIAL_SHARE:.0%}, or differs in kind from the target. Terrain: the slope "
+    f"distributions differ by more than {TERRAIN_PARTIAL_KS * 100:.0f} points",
     "impossible": "Cannot be reproduced on Earth",
     "not_calculated": "Not calculated for this site",
 }
@@ -100,7 +106,7 @@ FIDELITY_ROWS = [
      "note": "Earth's air scatters light into shadows and dims and reddens the low Sun. On the Moon shadows are black and the Sun is at full strength."},
     {"id": "ground", "label": "Bare ground (snow-free)", "kind": "fidelity", "source": "modis_snow"},
     {"id": "terrain", "label": "Slope and roughness", "kind": "fidelity", "level": "not_calculated",
-     "note": "Terrain comparison from LOLA and the Copernicus DEM is not part of this version."},
+     "note": "Terrain comparison from LOLA and the Copernicus DEM is not part of this version."},  # see fidelity_rows()
     {"id": "clear_sky", "label": "Clear sky for direct sunlight", "kind": "earth_only", "source": "ceres_cloud",
      "note": "The Moon has no cloud. On Earth a low-sun window needs a clear line of sight to the Sun."},
     {"id": "wind_chill", "label": "Wind chill within the crew limit", "kind": "operations", "source": "merra2_slv"},
@@ -108,6 +114,44 @@ FIDELITY_ROWS = [
     {"id": "vacuum", "label": "Vacuum", "kind": "fidelity", "level": "impossible"},
     {"id": "radiation", "label": "Radiation environment", "kind": "fidelity", "level": "impossible"},
 ]
+
+
+TERRAIN_FILE = CONFIG_DIR / "terrain.json"
+
+
+@lru_cache(maxsize=1)
+def _terrain() -> dict | None:
+    """Slope statistics written by fetch_terrain, or None before it has run."""
+    return json.loads(TERRAIN_FILE.read_text()) if TERRAIN_FILE.exists() else None
+
+
+def fidelity_rows() -> list[dict]:
+    """The card's rows, with the terrain row filled in once fetch_terrain has run."""
+    terrain = _terrain()
+    if not terrain:
+        return FIDELITY_ROWS
+    row = {
+        "id": "terrain",
+        "label": "Terrain slope",
+        "kind": "fidelity",
+        "source": "copernicus_dem",
+        "note": f"Slope on a {terrain['grid_m']:g} m grid in a {terrain['box_km']:g} km box: LOLA at the target, "
+        f"the Copernicus DEM at the site. Match when the share of ground below any slope differs by "
+        f"{TERRAIN_MATCH_KS * 100:.0f} points or less (partial: {TERRAIN_PARTIAL_KS * 100:.0f}). "
+        "Roughness is not compared yet.",
+    }
+    return [row if r["id"] == "terrain" else r for r in FIDELITY_ROWS]
+
+
+def terrain_stats(kind: str, id_: str) -> dict | None:
+    terrain = _terrain()
+    return terrain[kind].get(id_) if terrain else None
+
+
+def terrain_match(target_id: str, site_id: str) -> dict:
+    terrain = _terrain()
+    ks = terrain["ks"][target_id].get(site_id) if terrain else None
+    return {"ks": ks, "level": terrain_level(ks)}
 
 
 def _clean(x):
@@ -198,6 +242,7 @@ def site_record(site: Site) -> dict:
         "known_analog": site.known_analog,
         "utc_offset_solar_h": round(site.lon / 15.0, 2),
         "weather_cell_class": weather_cell(site)["class"],
+        "terrain": terrain_stats("sites", site.id),
     }
 
 
@@ -209,10 +254,15 @@ def build_site(site: Site, targets: list[Target]) -> tuple[dict, dict]:
     for t in targets:
         tm = target_months(sd, t.id)
         presets = {p.id: preset_result(sd, t.id, p, sm, tm) for p in PRESETS}
+        terrain = terrain_match(t.id, site.id)
+        for r in presets.values():
+            for m in r["months"]:
+                m["levels"]["terrain"] = terrain["level"]
         per_target[t.id] = {
             "months": tm,
             "presets": presets,
             "daily_usable": daily_usable_string(sd, t.id),
+            "terrain": terrain,
         }
         index_part["scores"][t.id] = {
             pid: {
@@ -272,7 +322,17 @@ def target_record(t: Target) -> dict:
         "band_min_deg": BAND_MIN_DEG,
         "band_max_deg": t.band_max_deg,
         "sun_rate_deg_per_h": round(360.0 / LUNAR_SYNODIC_DAY_H, 3),
+        "terrain": terrain_stats("targets", t.id),
     }
+
+
+def terrain_meta() -> dict | None:
+    """Grid, box and histogram bins of the terrain statistics, for the methods page and charts."""
+    terrain = _terrain()
+    if not terrain:
+        return None
+    keys = ("method", "grid_m", "box_km", "steep_deg", "hist_edges_deg")
+    return {k: terrain[k] for k in keys}
 
 
 def main() -> None:
@@ -320,11 +380,14 @@ def main() -> None:
             "snow_covered_pct": SNOW_COVERED_PCT,
             "polar_night_share": POLAR_NIGHT_SHARE,
             "extreme_cold_wind_chill_c": EXTREME_COLD_C,
+            "terrain_match_ks": TERRAIN_MATCH_KS,
+            "terrain_partial_ks": TERRAIN_PARTIAL_KS,
         },
         "levels": LEVELS,
         "weather_cell_classes": CELL_NOTES,
-        "fidelity_rows": FIDELITY_ROWS,
-        "sources": SOURCES,
+        "fidelity_rows": fidelity_rows(),
+        "sources": {**SOURCES, **(_terrain() or {}).get("sources", {})},
+        "terrain": terrain_meta(),
         "sites": [site_record(s) for s in sites],
         "scores": scores,
         "conditions": conditions,
