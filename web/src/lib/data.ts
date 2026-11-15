@@ -30,6 +30,28 @@ export interface Period {
   years: number[];
 }
 
+/** Slope in a box around a target or site, on the grid in `AnalogIndex.terrain`. Null before it is calculated. */
+export interface TerrainStats {
+  /** Share of the box that is land (the rest is sea). */
+  land_share: number;
+  median_slope_deg: number;
+  p90_slope_deg: number;
+  /** Share of the box steeper than `TerrainMeta.steep_deg`. */
+  steep_share: number;
+  /** Highest minus lowest point in the box. */
+  relief_m: number;
+  /** Share of the box in each bin of `TerrainMeta.hist_edges_deg`, plus one bin above the last edge. */
+  hist_share: number[];
+}
+
+export interface TerrainMeta {
+  method: string;
+  grid_m: number;
+  box_km: number;
+  steep_deg: number;
+  hist_edges_deg: number[];
+}
+
 export interface Target {
   id: string;
   name: string;
@@ -39,6 +61,7 @@ export interface Target {
   band_min_deg: number;
   band_max_deg: number;
   sun_rate_deg_per_h: number;
+  terrain?: TerrainStats | null;
 }
 
 export interface Objective {
@@ -82,6 +105,7 @@ export interface SiteMeta {
   known_analog: boolean;
   utc_offset_solar_h: number;
   weather_cell_class: WeatherCellClass;
+  terrain?: TerrainStats | null;
 }
 
 /** Usable days in a 14-day campaign. */
@@ -140,6 +164,8 @@ export interface AnalogIndex {
   weather_cell_classes: Record<WeatherCellClass, string>;
   fidelity_rows: FidelityRow[];
   sources: Record<string, Source>;
+  /** Grid and box of the terrain statistics; null before they are calculated. */
+  terrain?: TerrainMeta | null;
   sites: SiteMeta[];
   /** scores[targetId][presetId][siteId] */
   scores: Record<string, Record<string, Record<string, SiteScores>>>;
@@ -228,6 +254,8 @@ export interface SiteDetail {
       presets: Record<string, { months: Monthly<PresetMonth>; best_window: BestWindow | null }>;
       /** One hex digit per day: bit i is set when preset i allows a usable day. */
       daily_usable: string;
+      /** Kolmogorov-Smirnov distance between the site's and the target's slope distributions, and its level. */
+      terrain?: { ks: number | null; level: Level };
     }
   >;
   sun_samples: { time: string; step_min: number; months: Monthly<SunSampleMonth> };

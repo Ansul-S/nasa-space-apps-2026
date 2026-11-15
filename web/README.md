@@ -25,11 +25,14 @@ pnpm lint
 - `src/lib/moon-features.ts`: Moon features for the Moon view, at their IAU gazetteer positions.
 - `src/lib/orbit.ts`: globe geometry and the camera orbit, which can pass over the poles.
 - `src/lib/planner.ts`: the planner's slice of `index.json`, the ranking, and sun-band hours for any searched point.
+- `src/lib/gap-fillers.ts`: for a place without a usable low-sun window, the calculated sites that have one, with their snow cover and wind chill.
+- `src/lib/site-view.ts`: the site page's view model: calendar rows and fidelity card lines, including the terrain slope row.
 - `src/lib/search.ts`: search over the sites and Moon features, plus places on Earth from the Photon geocoder.
 - `src/lib/story.ts`: every figure the landing story quotes, read from the pipeline output, and the clock of the story's globe. `story.test.ts` checks the figures.
 - `src/lib/photos.ts`: types and helpers for the story photographs in `public/photos/`.
 - `src/components/globe/`: the three.js globe (`Globe.ts`, shaders) and its React wrapper.
-- `src/components/planner/`: the planner screen: controls, ranked list, clock, search and point cards.
+- `src/components/planner/`: the planner screen: controls, ranked list, clock, search, point cards and gap-fillers.
+- `src/components/site/`: the site page: best window, controls, seasonal calendar and fidelity card.
 - `src/components/story/`: the landing story: photo hero, the Moon's low Sun, lamp-lit tests on Earth, the scroll-driven globe, the sun chart, the weather cards and the closing sections.
 
 ## Textures

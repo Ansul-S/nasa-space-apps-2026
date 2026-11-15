@@ -91,6 +91,10 @@ export const formatLatLon = (lat: number, lon: number, digits = 2) =>
 export const formatDegrees = (value: number | null | undefined, digits = 1) =>
   value == null ? EMPTY : `${formatNumber(value, digits)}°`;
 
+/** A slope distribution: "median 5.9°, 90% under 10.9°". */
+export const formatSlopes = (t: { median_slope_deg: number; p90_slope_deg: number }) =>
+  `median ${formatDegrees(t.median_slope_deg)}, 90% under ${formatDegrees(t.p90_slope_deg)}`;
+
 /** Temperature: −28.5 → "−28.5 °C", with a no-break space so the unit never wraps alone. */
 export const formatTemp = (celsius: number | null | undefined, digits = 1) =>
   celsius == null ? EMPTY : `${formatNumber(celsius, digits)}\u00a0°C`;

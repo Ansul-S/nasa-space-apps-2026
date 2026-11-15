@@ -17,10 +17,21 @@ import type {
   SiteMonth,
   Target,
   TargetMonth,
+  TerrainMeta,
+  TerrainStats,
   WeatherCell,
 } from "./data.ts";
 import { toGapIndex, type GapIndex } from "./gap-fillers.ts";
-import { formatDegrees, formatDuration, formatNumber, formatPercent, formatTemp, humanize, shortName } from "./format.ts";
+import {
+  formatDegrees,
+  formatDuration,
+  formatNumber,
+  formatPercent,
+  formatSlopes,
+  formatTemp,
+  humanize,
+  shortName,
+} from "./format.ts";
 
 export type MinuteWindow = [start: number, end: number];
 
@@ -59,6 +70,8 @@ export interface SiteViewData {
   sun: { stepMin: number; months: SunSample[] };
   /** Every site's windows, snow and wind chill, for the lighting gap-fillers. */
   gap: GapIndex;
+  /** Grid and box of the terrain slope comparison; null before it is calculated. */
+  terrain: TerrainMeta | null;
 }
 
 function highest(values: Iterable<number>): number {
@@ -103,6 +116,7 @@ export function toSiteView(index: AnalogIndex, detail: SiteDetail): SiteViewData
       months: detail.sun_samples.months.map((m) => ({ date: m.date, elevation: m.elevation, windows: m.windows })),
     },
     gap: toGapIndex(index),
+    terrain: index.terrain ?? null,
   };
 }
 
@@ -311,6 +325,16 @@ export function calendarRows(view: SiteViewData, sel: Selection, months: readonl
 
 const SNOW_LABEL = { snow_free: "Snow-free", patchy: "Patchy snow", snow_covered: "Snow-covered" } as const;
 
+/** Below this share of land in the box, the site's slope describes only a small part of it. */
+const TERRAIN_LAND_NOTE = 0.5;
+
+function terrainText(t: TerrainStats | null | undefined, body: "moon" | "site"): string {
+  if (!t) return body === "moon" ? "LOLA slope" : "Not calculated";
+  const text = formatSlopes(t);
+  const capital = text[0].toUpperCase() + text.slice(1);
+  return t.land_share < TERRAIN_LAND_NOTE ? `${capital}; only ${formatPercent(t.land_share)} of the box is land` : capital;
+}
+
 export type FidelityGroup = "Lighting and ground" | "Earth-only conditions" | "Crew operations" | "Impossible on Earth";
 
 export const FIDELITY_GROUPS: FidelityGroup[] = [
@@ -364,7 +388,7 @@ export function fidelityLines(view: SiteViewData, sel: Selection, month: number)
         ? "Not measured here"
         : `${SNOW_LABEL[mo.snow_class]}, ${Math.round(mo.snow_pct)}% snow cover`,
     ],
-    terrain: ["LOLA slope and roughness", "Not in this version"],
+    terrain: [terrainText(target.terrain, "moon"), terrainText(view.site.terrain, "site")],
     clear_sky: ["No atmosphere", `Cloud ≤${cloud}% in ${formatPercent(mo.clear_hours_share[cloud])} of hours`],
     wind_chill: [
       "Suit-controlled",

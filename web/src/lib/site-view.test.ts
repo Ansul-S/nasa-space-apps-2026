@@ -111,8 +111,29 @@ describe("view model", () => {
     );
     const counts = Object.fromEntries(levelCounts(lines));
     assert.equal(counts.impossible, 3);
-    assert.equal(counts.not_calculated, 1);
+    assert.equal(counts.not_calculated, undefined);
     assert.equal(lines.find((l) => l.id === "sun_band")!.level, "match");
+  });
+
+  test("terrain row: slope at the target and the site, the same in every month", () => {
+    const v = view("ellesmere-inland");
+    const sel = select(v, ...DEFAULT);
+    const terrain = fidelityLines(v, sel, 8).find((l) => l.id === "terrain")!;
+    assert.equal(terrain.moon, "Median 5.9°, 90% under 10.9°");
+    assert.equal(terrain.site, "Median 9.5°, 90% under 30.8°");
+    assert.equal(terrain.level, "partial");
+    assert.equal(terrain.source, "Copernicus DEM GLO-30");
+    for (let m = 0; m < 12; m++) assert.equal(fidelityLines(v, sel, m).find((l) => l.id === "terrain")!.level, "partial");
+
+    // Arizona: terrain like Mons Mouton, light nothing like it (roadmap validation check 2).
+    const az = view("sf-volcanic-field");
+    const azLines = fidelityLines(az, select(az, ...DEFAULT), 8);
+    assert.equal(azLines.find((l) => l.id === "terrain")!.level, "match");
+    assert.equal(azLines.find((l) => l.id === "sun_band")!.level, "breaks_down");
+
+    // A coastal box that is mostly sea says so.
+    const fj = view("franz-josef-land");
+    assert.match(fidelityLines(fj, select(fj, ...DEFAULT), 8).find((l) => l.id === "terrain")!.site, /only 25% of the box is land/);
   });
 });
 

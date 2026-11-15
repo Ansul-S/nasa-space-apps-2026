@@ -334,6 +334,7 @@ export function SiteView({ view, initial }: SiteViewProps) {
               footer={[
                 `Weather grid ${grid.merra2Deg.join("° × ")}°, cloud ${grid.ceresDeg}°, snow ${grid.modisKm} km window`,
                 `Weather cell ${humanize(cell.class)}`,
+                ...(view.terrain ? [`Terrain ${view.terrain.grid_m} m grid, ${view.terrain.box_km} km box`] : []),
                 `Record ${formatDate(view.period.start)} to ${formatDate(view.period.end)}`,
               ]}
             />

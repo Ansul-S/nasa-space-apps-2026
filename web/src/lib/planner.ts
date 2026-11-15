@@ -11,6 +11,7 @@ import {
   type SiteMeta,
   type SiteScores,
   type Target,
+  type TerrainMeta,
   type WeatherCellClass,
 } from "./data.ts";
 import { snowLimits, type GapIndex } from "./gap-fillers.ts";
@@ -40,6 +41,8 @@ export interface PlannerData extends GapIndex {
   /** Top of the colour ramp: the highest monthly usable-day share anywhere. */
   maxScore: number;
   years: [first: number, last: number];
+  /** Grid and box of the terrain slopes; null before they are calculated. */
+  terrain: TerrainMeta | null;
 }
 
 export function toPlannerData(index: AnalogIndex): PlannerData {
@@ -61,6 +64,7 @@ export function toPlannerData(index: AnalogIndex): PlannerData {
     cellNotes: index.weather_cell_classes,
     maxScore: maxScore(index),
     years: [index.period.years[0], index.period.years[index.period.years.length - 1]],
+    terrain: index.terrain ?? null,
   };
 }
 

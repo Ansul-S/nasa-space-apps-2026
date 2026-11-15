@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import { Arrow, buttonClass } from "@/components/ui/Button";
 import { LEVEL_LABELS, LevelGlyph } from "@/components/ui/LevelBadge";
 import { cn } from "@/lib/cn";
-import type { SiteMeta, SiteScores, Target } from "@/lib/data";
+import type { SiteMeta, SiteScores, Target, TerrainStats } from "@/lib/data";
 import {
   formatDayRange,
   formatDegrees,
@@ -288,13 +288,28 @@ interface MoonCardProps {
   light: MoonLight;
   sunNow: number;
   target: Target;
+  /** Slope at this lunar target, and the box it was measured in; only for targets. */
+  terrain: { stats: TerrainStats; boxKm: number } | null;
   periodLabel: string;
   compareWith: string;
   onCompare: () => void;
   onClose: () => void;
 }
 
-export function MoonCard({ name, feature, lat, lon, light, sunNow, target, periodLabel, compareWith, onCompare, onClose }: MoonCardProps) {
+export function MoonCard({
+  name,
+  feature,
+  lat,
+  lon,
+  light,
+  sunNow,
+  target,
+  terrain,
+  periodLabel,
+  compareWith,
+  onCompare,
+  onClose,
+}: MoonCardProps) {
   const isTarget = feature?.kind === "target";
   return (
     <CardShell
@@ -324,6 +339,12 @@ export function MoonCard({ name, feature, lat, lon, light, sunNow, target, perio
           ["Sun above the horizon", `${formatPercent(light.upShare)} of the time`],
           ["Highest Sun that lunar day", formatDegrees(light.maxElevation)],
           ...(isTarget ? ([["Sun speed across the sky", `${formatNumber(target.sun_rate_deg_per_h, 2)}°/h`]] as [string, string][]) : []),
+          ...(isTarget && terrain
+            ? ([
+                [`Median slope, ${terrain.boxKm} km box`, formatDegrees(terrain.stats.median_slope_deg)],
+                ["90% of the box is under", formatDegrees(terrain.stats.p90_slope_deg)],
+              ] as [string, string][])
+            : []),
         ]}
       />
       <Note>
@@ -332,7 +353,8 @@ export function MoonCard({ name, feature, lat, lon, light, sunNow, target, perio
           : "No weather here: only the sun band and the terrain decide."}{" "}
         <span className="text-ink-3">
           {periodLabel}. Sun from the astronomy-engine ephemeris
-          {feature ? <>; position from the IAU gazetteer (feature {feature.gazetteer})</> : null}.
+          {feature ? <>; position from the IAU gazetteer (feature {feature.gazetteer})</> : null}
+          {isTarget && terrain ? <>; slope from the LOLA polar elevation model</> : null}.
         </span>
       </Note>
       <button type="button" onClick={onCompare} className={buttonClass({ variant: "primary", size: "sm" }, "mt-3.5 w-full cursor-pointer")}>

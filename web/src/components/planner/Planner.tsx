@@ -381,6 +381,10 @@ export function Planner({ data, patches, initial }: PlannerProps) {
         light={moonLit}
         sunNow={moonSunElevation(ms, moonPlace.lat, moonPlace.lon)}
         target={target}
+        terrain={(() => {
+          const stats = data.targets.find((t) => t.id === moonPlace.feature?.target)?.terrain;
+          return stats && data.terrain ? { stats, boxKm: data.terrain.box_km } : null;
+        })()}
         periodLabel={`Over one lunar day from 1 ${MONTHS[month]} ${SAMPLE_YEAR}`}
         compareWith={compareSite.name}
         onCompare={() => {
