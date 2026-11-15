@@ -85,7 +85,7 @@ export function SeasonCalendar({ rows, month, onMonth }: SeasonCalendarProps) {
                     aria-label={`Follow ${m} through the page`}
                     onClick={() => onMonth(i)}
                     className={cn(
-                      "w-full cursor-pointer rounded font-mono text-[11px] transition-colors duration-200",
+                      "min-h-6 w-full cursor-pointer rounded font-mono text-[11px] transition-colors duration-200",
                       i === month ? "text-sun" : "text-ink-3 hover:text-ink",
                     )}
                   >
@@ -125,7 +125,7 @@ export function SeasonCalendar({ rows, month, onMonth }: SeasonCalendarProps) {
         </span>
         <span className="inline-flex items-center gap-2">
           <b className="font-mono text-[10px] font-normal text-rose">−40</b>
-          Median wind chill below −40 °C
+          Median wind chill below −40&nbsp;°C
         </span>
       </div>
     </div>

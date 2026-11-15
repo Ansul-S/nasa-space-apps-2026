@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+
 import { Arrow, ButtonLink } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Panel } from "@/components/ui/Panel";
@@ -17,7 +19,7 @@ export function DevonSection({ story, photo }: { story: StoryData; photo: Photo 
   return (
     <section aria-labelledby="devon-title" className="border-t border-line py-[clamp(88px,14vh,140px)]">
       <div className="wrap grid gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-center lg:gap-14">
-        <figure className="m-0">
+        <figure className="reveal m-0">
           <div className="relative aspect-[3/2] overflow-hidden rounded-panel border border-line bg-sky-1">
             <PhotoImage
               photo={photo}
@@ -35,7 +37,7 @@ export function DevonSection({ story, photo }: { story: StoryData; photo: Photo 
           </figcaption>
         </figure>
 
-        <div>
+        <div className="reveal" style={{ "--i": 1 } as CSSProperties}>
           <Eyebrow accent="A known analog">
             {name} · {formatLat(devon.lat, 1)}
           </Eyebrow>

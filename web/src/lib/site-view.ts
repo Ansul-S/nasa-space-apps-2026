@@ -276,15 +276,15 @@ export function calendarRows(view: SiteViewData, sel: Selection, months: readonl
     {
       id: "wind_chill",
       label: "Wind chill",
-      sub: `share of hours ≥ ${formatNumber(preset.wind_chill_min_c, 0)} °C`,
+      sub: `share of hours ≥ ${formatNumber(preset.wind_chill_min_c, 0)}\u00a0°C`,
       cells: m.map((mo, i) => {
         const v = mo.wind_chill_ok_share[chill];
         const cold = mo.flags.includes("extreme_cold");
         return cell(
           v,
           formatPercent(v),
-          `${months[i]}: wind chill ≥ ${formatNumber(preset.wind_chill_min_c, 0)} °C in ${formatPercent(v)} of hours` +
-            (cold ? "; median below −40 °C" : ""),
+          `${months[i]}: wind chill ≥ ${formatNumber(preset.wind_chill_min_c, 0)}\u00a0°C in ${formatPercent(v)} of hours` +
+            (cold ? "; median below −40\u00a0°C" : ""),
           { cold },
         );
       }),
@@ -364,7 +364,7 @@ export function fidelityLines(view: SiteViewData, sel: Selection, month: number)
     clear_sky: ["No atmosphere", `Cloud ≤${cloud}% in ${formatPercent(mo.clear_hours_share[cloud])} of hours`],
     wind_chill: [
       "Suit-controlled",
-      `Median ${formatTemp(mo.wind_chill_median_c)}; ≥ ${limit} °C in ${formatPercent(mo.wind_chill_ok_share[chill])} of hours`,
+      `Median ${formatTemp(mo.wind_chill_median_c)}; ≥ ${limit}\u00a0°C in ${formatPercent(mo.wind_chill_ok_share[chill])} of hours`,
     ],
     gravity: ["1.62 m/s² (1/6 g)", "9.81 m/s²"],
     vacuum: ["Hard vacuum", "1 atm of air"],

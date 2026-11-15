@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 import { Callout } from "@/components/ui/Callout";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -100,8 +100,8 @@ export function WeatherCards({ story }: { story: StoryData }) {
         </SectionHead>
 
         <ul className="grid gap-4 md:grid-cols-3">
-          {cards.map((c) => (
-            <li key={c.key}>
+          {cards.map((c, i) => (
+            <li key={c.key} className="reveal" style={{ "--i": i } as CSSProperties}>
               <Panel as="article" tone={c.best ? "sun" : "default"} className="flex h-full flex-col gap-2.5 p-6">
                 <Eyebrow accent={c.best ? c.label : undefined}>{c.best ? undefined : c.label}</Eyebrow>
                 <p

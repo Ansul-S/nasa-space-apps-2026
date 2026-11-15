@@ -6,7 +6,7 @@ interface PhotoImageProps {
   alt: string;
   /** The `sizes` attribute: how wide the image is drawn. */
   sizes: string;
-  /** Load at once with high priority, for the image at the top of the page. */
+  /** Load at once, for the image at the top of the page. */
   priority?: boolean;
   className?: string;
 }
@@ -26,7 +26,6 @@ export function PhotoImage({ photo, alt, sizes, priority = false, className }: P
       height={photo.height}
       alt={alt}
       loading={priority ? "eager" : "lazy"}
-      fetchPriority={priority ? "high" : undefined}
       decoding="async"
       className={className}
     />

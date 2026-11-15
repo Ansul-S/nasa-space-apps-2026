@@ -11,7 +11,7 @@ export function StoryCta({ story }: { story: StoryData }) {
         aria-hidden="true"
         className="pointer-events-none absolute bottom-[-420px] left-1/2 -z-10 h-[600px] w-[1400px] -translate-x-1/2 bg-[radial-gradient(closest-side,rgb(255_138_61/0.28),rgb(246_182_90/0.08)_55%,transparent_75%)]"
       />
-      <div className="wrap pt-[clamp(96px,16vh,160px)] pb-[clamp(110px,18vh,180px)]">
+      <div className="reveal wrap pt-[clamp(96px,16vh,160px)] pb-[clamp(110px,18vh,180px)]">
         <Eyebrow>For field-test leads planning Artemis surface tests</Eyebrow>
         <h2
           id="cta-title"

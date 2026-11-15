@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { photoDate, type Photo } from "@/lib/photos";
 
@@ -35,7 +37,7 @@ export function LampsSection({ photos }: { photos: { pool: Photo; floor: Photo; 
   return (
     <section aria-labelledby="lamps-title" className="border-t border-line py-[clamp(88px,14vh,140px)]">
       <div className="wrap">
-        <div className="grid gap-6 md:grid-cols-2 md:items-end md:gap-10">
+        <div className="reveal grid gap-6 md:grid-cols-2 md:items-end md:gap-10">
           <div>
             <Eyebrow accent="On Earth today">Lunar lighting tests</Eyebrow>
             <h2
@@ -52,8 +54,8 @@ export function LampsSection({ photos }: { photos: { pool: Photo; floor: Photo; 
         </div>
 
         <ul className="mt-12 grid gap-5 md:grid-cols-3">
-          {shots.map((s) => (
-            <li key={s.photo.nasa_id}>
+          {shots.map((s, i) => (
+            <li key={s.photo.nasa_id} className="reveal" style={{ "--i": i } as CSSProperties}>
               <figure className="group m-0 flex h-full flex-col">
                 <div className="relative aspect-[4/3] overflow-hidden rounded-panel border border-line bg-sky-1">
                   <PhotoImage
@@ -78,7 +80,7 @@ export function LampsSection({ photos }: { photos: { pool: Photo; floor: Photo; 
 
         <a
           href="#ring"
-          className="group mt-14 inline-flex items-baseline gap-3 font-display text-[clamp(24px,2.4vw,34px)] leading-tight text-ink no-underline"
+          className="reveal group mt-14 inline-flex items-baseline gap-3 font-display text-[clamp(24px,2.4vw,34px)] leading-tight text-ink no-underline"
         >
           <span>
             So where on Earth does the real Sun sit this low, <em className="text-sun-pale">for hours?</em>

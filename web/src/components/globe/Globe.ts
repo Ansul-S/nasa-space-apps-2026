@@ -76,6 +76,8 @@ export interface GlobeOptions {
   onPick?: (point: LatLon) => void;
   /** All base textures have loaded. */
   onReady?: () => void;
+  /** A base texture could not be loaded. */
+  onError?: () => void;
 }
 
 const FOV = 30;
@@ -165,10 +167,17 @@ export class Globe {
     const maxAniso = Math.min(8, this.renderer.capabilities.getMaxAnisotropy());
     let pending = urls.length;
     return urls.map((url) => {
-      const t = loader.load(url, () => {
-        this.invalidate();
-        if (--pending === 0) onAll();
-      });
+      const t = loader.load(
+        url,
+        () => {
+          this.invalidate();
+          if (--pending === 0) onAll();
+        },
+        undefined,
+        () => {
+          if (!this.disposed) this.opts.onError?.();
+        },
+      );
       t.anisotropy = maxAniso;
       t.wrapS = RepeatWrapping;
       t.minFilter = LinearMipmapLinearFilter;

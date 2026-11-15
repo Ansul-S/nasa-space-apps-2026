@@ -3,16 +3,16 @@ import { formatMinutes, formatNumber, MONTHS_LONG, shortName } from "@/lib/forma
 import { photoDate, type Photo } from "@/lib/photos";
 import { STORY_MONTH, windowMinutes, type StoryData } from "@/lib/story";
 
-import { PhotoCredit, PhotoImage } from "./Photo";
+import { HeroPhoto } from "./HeroPhoto";
+import { PhotoCredit } from "./Photo";
 
 /** The opening: NASA's night-time field test, and why it happens at night. */
 export function StoryHero({ story, photo }: { story: StoryData; photo: Photo }) {
   const minutes = windowMinutes(story.days.arizona.windows);
   return (
     <section className="relative isolate flex min-h-[min(calc(100svh-var(--header-h)),980px)] items-end overflow-hidden">
-      <PhotoImage
+      <HeroPhoto
         photo={photo}
-        priority
         sizes="100vw"
         alt="Night-time field test near Flagstaff, Arizona: a test crew and a cart lit by a low spotlight, casting long shadows across frosted grass."
         className="absolute inset-0 -z-20 size-full animate-settle object-cover object-[36%_58%] brightness-[0.9] sm:object-[50%_58%] saturate-[0.78]"

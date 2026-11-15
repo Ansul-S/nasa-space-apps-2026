@@ -54,7 +54,7 @@ export function MoonSection({ story, photo }: { story: StoryData; photo: Photo }
           The Sun circles the horizon once a month and never climbs high. Shadows stay long, the light comes from the side
           for days on end, and craters next to sunlit ridges stay dark. Artemis crews will work in this light.
         </p>
-        <dl className="mt-12 grid max-w-[680px] grid-cols-1 gap-8 min-[480px]:grid-cols-3 min-[480px]:gap-6">
+        <dl className="reveal mt-12 grid max-w-[680px] grid-cols-1 gap-8 min-[480px]:grid-cols-3 min-[480px]:gap-6">
           <div>
             <dt className="eyebrow">Highest Sun</dt>
             <dd className="mt-2">

@@ -83,14 +83,15 @@ function Row({
         className={cn(
           "grid w-full cursor-pointer grid-cols-[22px_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 rounded-[10px] border px-2.5 py-[11px] text-left transition-colors duration-200",
           selected ? "border-line-2 bg-sky-2" : "border-transparent hover:bg-sky-1",
-          dim && !selected && "opacity-60",
         )}
       >
         <span className="self-start pt-0.5 font-mono text-xs text-ink-3">
           {dim ? "–" : String(row.rank).padStart(2, "0")}
         </span>
         <span className="min-w-0">
-          <span className="block truncate text-sm font-medium">{shortName(site.name)}</span>
+          <span className={cn("block truncate text-sm font-medium", dim && !selected && "text-ink-2")}>
+            {shortName(site.name)}
+          </span>
           <span className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-ink-3">
             {site.region}
             {site.role === "validation" && <Tag tone="validation">Validation</Tag>}
@@ -109,7 +110,7 @@ function Row({
           <span className="font-mono text-[11px] whitespace-nowrap text-ink-3">{sub}</span>
         </span>
         <MonthStrip
-          className="col-span-2 col-start-2 mt-1.5"
+          className={cn("col-span-2 col-start-2 mt-1.5", dim && !selected && "opacity-50")}
           values={scores.score.map((v) => (v > 0 ? v / data.maxScore : 0))}
           titles={scores.score.map((v) => `${formatPercent(v)} of days usable`)}
           month={mode === "month" ? month : null}

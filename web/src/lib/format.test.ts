@@ -43,7 +43,7 @@ test("dates, clock and ranges", () => {
 
 test("percent, temperature, coordinates and names", () => {
   assert.equal(formatPercent(0.686), "69%");
-  assert.equal(formatTemp(-28.5), "−28.5 °C");
+  assert.equal(formatTemp(-28.5), "−28.5\u00a0°C");
   assert.equal(formatLatLon(81, -75), "81.00° N · 75.00° W");
   assert.equal(shortName("Svalbard (Adventdalen)"), "Svalbard");
 });

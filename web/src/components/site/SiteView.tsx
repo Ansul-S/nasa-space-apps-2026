@@ -130,7 +130,7 @@ export function SiteView({ view, initial }: SiteViewProps) {
               transition={{ duration: 0.3, ease: [0.22, 0.8, 0.24, 1] }}
               className="overflow-hidden"
             >
-              <Callout tone="warn" title={`${formatNumber(preset.wind_chill_min_c, 0)} °C limit.`} className="mt-4">
+              <Callout tone="warn" title={`${formatNumber(preset.wind_chill_min_c, 0)}\u00a0°C limit.`} className="mt-4">
                 {preset.warning}
               </Callout>
             </motion.div>

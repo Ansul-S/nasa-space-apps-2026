@@ -60,7 +60,7 @@ export function TwoSkies({ story }: { story: StoryData }) {
           inside it. Elevation is apparent, with refraction, over a flat horizon.
         </SectionHead>
 
-        <Panel className="px-3 pt-4 pb-3 sm:px-5.5 sm:pt-5.5">
+        <Panel className="reveal px-3 pt-4 pb-3 sm:px-5.5 sm:pt-5.5">
           <div ref={box} className="flex flex-wrap items-center justify-between gap-4 px-1">
             <Segmented<Sky>
               label="Site"

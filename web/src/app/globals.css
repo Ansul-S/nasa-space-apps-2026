@@ -19,7 +19,7 @@
 
   --color-ink: #ece8e1;
   --color-ink-2: #abadb2;
-  --color-ink-3: #7a7f88;
+  --color-ink-3: #858a93;
   --color-ink-on-sun: #1b1007;
 
   --color-sun: #f6b65a;
@@ -86,6 +86,9 @@
 @layer base {
   html {
     background: var(--color-sky-0);
+    scroll-behavior: smooth;
+    /* In-page links land below the sticky header. */
+    scroll-padding-top: var(--header-h);
   }
 
   body {
@@ -324,6 +327,35 @@
     box-shadow:
       0 0 0 3px var(--color-sky-0),
       0 0 0 5px var(--color-sun);
+  }
+}
+
+/*
+ * Scroll reveal: blocks rise into place as they enter the viewport, driven by
+ * the scroll position itself. Browsers without scroll-driven animations, and
+ * readers who prefer reduced motion, see the content in place. --i staggers
+ * siblings.
+ */
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@layer components {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .reveal {
+        animation: reveal linear both;
+        animation-timeline: view();
+        animation-range: entry calc(var(--i, 0) * 9%) entry calc(65% + var(--i, 0) * 9%);
+      }
+    }
   }
 }
 

@@ -91,9 +91,9 @@ export const formatLatLon = (lat: number, lon: number, digits = 2) =>
 export const formatDegrees = (value: number | null | undefined, digits = 1) =>
   value == null ? EMPTY : `${formatNumber(value, digits)}°`;
 
-/** Temperature: −28.5 → "−28.5 °C". */
+/** Temperature: −28.5 → "−28.5 °C", with a no-break space so the unit never wraps alone. */
 export const formatTemp = (celsius: number | null | undefined, digits = 1) =>
-  celsius == null ? EMPTY : `${formatNumber(celsius, digits)} °C`;
+  celsius == null ? EMPTY : `${formatNumber(celsius, digits)}\u00a0°C`;
 
 /** A low–high range of days: "1–7". */
 export const formatRange = (lo: number, hi: number, digits = 0) =>

@@ -10,7 +10,7 @@ export const COLORS = {
   sky3: "#1A2230",
   ink: "#ECE8E1",
   ink2: "#ABADB2",
-  ink3: "#7A7F88",
+  ink3: "#858A93",
   inkOnSun: "#1B1007",
   sun: "#F6B65A",
   sunHot: "#FF8A3D",
@@ -47,5 +47,32 @@ export const rampColor = (t: number) => `rgb(${rampRgb(t).join(" ")})`;
 export const rampGradient = (direction = "90deg", stops = 6) =>
   `linear-gradient(${direction}, ${Array.from({ length: stops }, (_, i) => rampColor(i / (stops - 1))).join(", ")})`;
 
-/** Text colour that stays readable on a ramp cell. */
-export const onRamp = (t: number) => (t > 0.55 ? COLORS.inkOnSun : COLORS.ink);
+/** Relative luminance of an sRGB colour (WCAG 2). */
+function luminance([r, g, b]: Rgb): number {
+  const f = (v: number) => {
+    const c = v / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+}
+
+const hexRgb = (hex: string): Rgb => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)) as Rgb;
+
+/** WCAG contrast ratio of two colours. */
+export function contrast(a: Rgb, b: Rgb): number {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+/**
+ * Text colour for a ramp cell with at least AA contrast (4.5:1): the theme's
+ * light or dark ink, whichever reads better, or pure white or black where
+ * neither ink is enough (the middle of the ramp).
+ */
+export function onRamp(t: number): string {
+  const bg = rampRgb(t);
+  const inks = [COLORS.ink, COLORS.inkOnSun].map((c) => ({ c, k: contrast(hexRgb(c), bg) }));
+  const best = inks[0].k >= inks[1].k ? inks[0] : inks[1];
+  if (best.k >= 4.5) return best.c;
+  return contrast([255, 255, 255], bg) >= contrast([0, 0, 0], bg) ? "#FFFFFF" : "#000000";
+}

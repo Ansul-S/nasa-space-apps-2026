@@ -1,6 +1,5 @@
 "use client";
 
-import { useReducedMotion } from "motion/react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -9,7 +8,6 @@ import type { MarkerSpec } from "@/components/globe/Globe";
 import type { FocusRequest } from "@/components/globe/GlobeView";
 import { HudChip, StateTag, sunState } from "@/components/planner/CompareHud";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { cn } from "@/lib/cn";
 import { formatClock, formatLat, formatMinutes, formatNumber, MONTHS, MONTHS_LONG, shortName } from "@/lib/format";
 import { COLORS } from "@/lib/palette";
 import { ringSteps, ringTime, STORY_MONTH, windowMinutes, type RingStep, type StoryData } from "@/lib/story";
@@ -145,10 +143,9 @@ export function RingStory({ story }: { story: StoryData }) {
             className="wrap flex min-h-[52svh] items-start pt-8 lg:min-h-[80vh] lg:w-auto lg:items-center lg:p-0"
           >
             <article
-              className={cn(
-                "max-w-[30rem] transition-opacity duration-500 ease-soft",
-                step === i ? "opacity-100" : "opacity-35",
-              )}
+              data-active={step === i}
+              aria-current={step === i ? "step" : undefined}
+              className="group max-w-[30rem] border-l border-line pl-5 transition-colors duration-500 ease-soft data-[active=true]:border-sun lg:pl-7"
             >
               <Eyebrow accent={c.eyebrow[0]}>{c.eyebrow[1]}</Eyebrow>
               {c.body}
@@ -162,7 +159,7 @@ export function RingStory({ story }: { story: StoryData }) {
 
 function StepTitle({ children }: { children: ReactNode }) {
   return (
-    <h2 className="mt-3.5 max-w-[16ch] font-display text-[clamp(30px,3.3vw,48px)] leading-[1.04] tracking-[-0.01em]">
+    <h2 className="mt-3.5 max-w-[16ch] font-display text-[clamp(30px,3.3vw,48px)] leading-[1.04] tracking-[-0.01em] text-ink-2 transition-colors duration-500 group-data-[active=true]:text-ink">
       {children}
     </h2>
   );
@@ -174,7 +171,7 @@ function StepText({ children }: { children: ReactNode }) {
 
 function BigNumber({ value, unit }: { value: string; unit: string }) {
   return (
-    <p className="mt-3 font-display text-[clamp(60px,7.4vw,112px)] leading-[0.9] tracking-[-0.02em] text-sun tabular-nums">
+    <p className="mt-3 font-display text-[clamp(60px,7.4vw,112px)] leading-[0.9] tracking-[-0.02em] text-ink-3 tabular-nums transition-colors duration-500 group-data-[active=true]:text-sun">
       {value}
       <small className="ml-2 font-sans text-[15px] tracking-normal text-ink-2">{unit}</small>
     </p>
@@ -193,7 +190,8 @@ function RingSwatch() {
 /* ---------- the sticky globe ---------- */
 
 function RingStage({ story, steps, step }: { story: StoryData; steps: RingStep[]; step: number }) {
-  const reduced = useReducedMotion() ?? false;
+  // Hydration-safe: false while hydrating, so the server and client agree on the first frame.
+  const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
   const stageRef = useRef<HTMLDivElement>(null);
   const [near, setNear] = useState(false);
   const [visible, setVisible] = useState(false);

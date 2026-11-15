@@ -67,7 +67,8 @@ export default function GlobeView({
   const globeRef = useRef<Globe | null>(null);
   const handlers = useRef({ onMarker, onPick });
   const [ready, setReady] = useState(false);
-  const [failed, setFailed] = useState(false);
+  /** Why the globe cannot be shown: no WebGL, or the imagery did not load. */
+  const [failed, setFailed] = useState<"webgl" | "imagery" | null>(null);
 
   useEffect(() => {
     handlers.current = { onMarker, onPick };
@@ -91,9 +92,10 @@ export default function GlobeView({
         onMarker: (id) => handlers.current.onMarker?.(id),
         onPick: (p) => handlers.current.onPick?.(p),
         onReady: () => setReady(true),
+        onError: () => setFailed("imagery"),
       });
     } catch {
-      queueMicrotask(() => setFailed(true));
+      queueMicrotask(() => setFailed("webgl"));
       return;
     }
     globeRef.current = globe;
@@ -164,10 +166,28 @@ export default function GlobeView({
         />
         <div ref={layerRef} className="pointer-events-none absolute inset-0 [&>*]:pointer-events-auto" />
       </div>
+      {!ready && !failed && (
+        <div
+          role="status"
+          className="pointer-events-none absolute inset-0 grid place-items-center text-center font-mono text-[11px] tracking-[0.12em] text-ink-3 uppercase"
+        >
+          <span className="flex flex-col items-center gap-4">
+            <span
+              aria-hidden="true"
+              className="size-14 animate-spin rounded-full border border-line-2 border-t-sun [animation-duration:1.4s] motion-reduce:animate-none"
+            />
+            Loading NASA imagery
+          </span>
+        </div>
+      )}
       {failed && (
-        <div className="absolute inset-0 grid place-items-center p-8 text-center text-[13px] text-ink-3">
-          This browser could not start WebGL, so the globe is not shown.
-          {interactive && " The ranked list and site pages still work."}
+        <div role="alert" className="absolute inset-0 grid place-items-center p-8 text-center text-[13px] text-ink-3">
+          <p className="max-w-[36ch]">
+            {failed === "webgl"
+              ? "This browser could not start WebGL, so the globe is not shown."
+              : "The NASA globe imagery could not be loaded. Check the connection and reload the page."}
+            {interactive && " The ranked list and site pages still work."}
+          </p>
         </div>
       )}
       {interactive && (
