@@ -97,11 +97,12 @@ All monthly arrays have 12 entries, January first. Missing values are `null`.
 | `targets[target].presets[preset].months[]` | `usable_share`, `score`, `odds` {`mean`, `median`, `p10`, `p90`, `p_at_least`, `n`, `years`}, `levels` {`sun_band`, `clear_sky`, `ground`, `wind_chill`, `sun_motion`, `sky_light`, `terrain`} |
 | `targets[target].presets[preset].best_window` | `start`, `end` ("MM-DD"), `mean`, `median`, `p10`, `p90`, `p_at_least`, `n`, `held_out_mean`, or `null` |
 | `targets[target].terrain` | `ks` (Kolmogorov-Smirnov distance between the site's and the target's slope distributions) and `level` |
-| `targets[target].daily_usable` | One hex digit per day from `period.start`; bit *i* is set when the day is usable under `presets[i]` (index order). Lets the website compute other campaign lengths and start dates. |
+| `targets[target].daily_usable` | One hex digit per day from `period.start`; bit *i* is set when the day is usable under `presets[i]` (index order). Other campaign lengths and start dates can be computed from it; the website does not use it yet. |
 | `sun_samples` | For the 15th of each month of 2025: `elevation` and `azimuth` every `step_min` minutes from local solar midnight, and `windows[target]` as [start, end) minute pairs in the band |
 
 ## Checks and findings
 Checks run on the results (14 Nov 2026):
+- Repeated on 15 Nov 2026 for all ten years at four sites with separate code (NREL SPA at 1-minute steps): Peary Land differs on 1 of 3,651 days, Devon Island on 7, Vestfold Hills on 6, and Kronprins Christian Land (Malapert, relaxed cloud, −40 °C) on 4. The best windows start within 2 days of the published ones. A rebuild from the raw data reproduces the published site files byte for byte.
 - An independent calculation with NREL SPA sun positions at 1-minute steps gives the same usable days for Ellesmere Island in 2020 under all four presets, and differs on 1 to 3 marginal days at Vestfold Hills.
 - Hours with the Sun in the band are not less cloudy than other hours of the same month, so the cloud data shows no low-sun bias in favour of the result.
 - Requiring the Sun to be at least 1° or 2° up lowers the best-window means by 0.1 to 0.6 days of 14 and does not change the ranking.
@@ -123,6 +124,9 @@ Spring and autumn in the High Arctic, at the −28 °C wind chill limit (Ellesme
 - Precipitation poleward of 62.5° is model output without rain-gauge correction.
 - 10 years give 10 seasons, so the 10th and 90th percentiles are uncertain.
 - Flat horizon: local terrain can block the low Sun.
+- The band's upper edge uses 1.5° for the Moon's tilt. An ephemeris check (astronomy-engine, 2020–2039) puts the Sun up to 1.59° from the lunar equator, so the highest Sun at the centre of Mons Mouton is 6.98° and at Malapert Massif 5.61°, up to 0.1° above the band.
+- Usable days do not depend on snow, apart from the wind limit. In every Arctic best window at the default settings the ground is snow-covered (76% to 100% monthly snow cover), which the ground row rates `breaks_down`. The best snow-free month is August on Cornwallis Island (2% snow cover): 0.6 expected usable days of 14 at the default settings and 2.1 with relaxed cloud.
+- `known_analog` is our own short list from a literature search, not the USGS known-sites layer.
 - Terrain compares slope only, in one 10 km box per place. Roughness, rocks and boulders at scales finer than 40 m are not compared.
 - The LOLA grid is interpolated between altimeter tracks, which can smooth slopes on the Moon side.
 - The Copernicus DEM is a surface model: glacier and snow surfaces count as terrain. At Station Nord, Hayes Island and Cape Baranov less than half of the box is land.

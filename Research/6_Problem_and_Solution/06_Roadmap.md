@@ -2,6 +2,14 @@
 
 **Status:** approved 14 Nov 2026. The build starts with M0.
 
+**Outcome (15 Nov 2026).** M0 to M4 are complete. Built as planned: all four features for one objective, two targets and 14 sites; the P1 items (check any place, terrain row, CSV export and print card); the validation panel and the methods page. Changed during the build:
+- The map is a three.js globe with NASA GIBS imagery, not MapLibre, and a Moon view with an Earth and Moon comparison was added. `04` had listed a 3D globe as backlog.
+- The terrain row uses LOLA and the Copernicus DEM. Diviner was not used.
+- The sun engine is checked against NREL SPA, not the NOAA calculator's values.
+- The combined calendar row became the usable-days row; conditions are not weighted into one score.
+
+Not built: every P2 item (Mars, all nine lunar regions, limits set by the user), the campaign-length and start-date pickers, GeoJSON export, and the local horizon from the DEM. Surface temperature was replaced by wind chill as the fourth calendar row.
+
 **Time and team:** about 17 hours to the submission deadline (Space Apps 2026 runs 14–15 Nov). One developer.
 
 ## Approach

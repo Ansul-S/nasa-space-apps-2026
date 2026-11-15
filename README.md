@@ -22,6 +22,8 @@ Analog sites are usually treated as fixed places, and campaign dates are chosen 
 
 **The question the planner answers:** *Where and when on Earth should we test this, how faithful will it be, and how many usable days will we get?*
 
+**Scope of this version:** one test objective (navigation and EVA under low sun), two lunar South Pole targets and 14 Earth sites. Mars targets are not covered yet; the Methods page lists them under next steps.
+
 ## Team
 
 **Team name:** Wayfinders Frontier
@@ -43,7 +45,7 @@ Analog sites are usually treated as fixed places, and campaign dates are chosen 
 | **Methods** (`/methods/`) | The validation checks, the usable-day rule, the campaign odds, the match levels, the data and the limits. |
 
 ### How it works
-- **Sun band.** For each lunar target the band runs from 0° to (90° − |target latitude|) + 1.5°: 6.9° at Mons Mouton and 5.5° at Malapert Massif. Sun positions on Earth are calculated every 5 minutes with the NOAA solar algorithm, checked against NREL SPA to within 0.02°.
+- **Sun band.** For each lunar target the band runs from 0° to (90° − |target latitude|) + 1.5°, the highest the Sun climbs there to within 0.1°: 6.9° at Mons Mouton and 5.5° at Malapert Massif. Sun positions on Earth are calculated every 5 minutes with the NOAA solar algorithm, checked against NREL SPA to within 0.02°.
 - **Usable day.** The Sun stays in the band for at least 2 unbroken hours, and during that stretch the cloud amount is at most 30% (or 50%), the wind is within limits, the wind chill is at least −28 °C (or −40 °C), and the day's precipitation is under 1 mm.
 - **Campaign odds.** Ten years of hourly data (2 Jan 2016 to 30 Dec 2025). Every day of the record starts one 14-day campaign; the best window's expected usable days are scored on years held out from its choice, so hindsight does not flatter the figure.
 - **Terrain.** Slope in a 10 km box on the same 40 m grid on both bodies: LRO LOLA at the lunar target, the Copernicus DEM at the Earth site, compared with the Kolmogorov-Smirnov distance.
@@ -54,14 +56,16 @@ The full method, data contract and limits are in [`pipeline/README.md`](pipeline
 ### Results at the default settings
 Mons Mouton, cloud ≤30%, wind chill ≥ −28 °C. Expected usable days in the best 14-day window, scored on held-out years:
 
-| Site | Region | Best window | Usable days of 14 | Note |
-|---|---|---|---|---|
-| Peary Land (Jørgen Brønlund Fjord) | Greenland | 21 Sep – 4 Oct | 4.5 | New site. Its weather cell is mostly ice sheet, so this figure is too pessimistic. |
-| Kronprins Christian Land (Station Nord) | Greenland | 18 Sep – 1 Oct | 3.8 | New site |
-| Vestfold Hills | Antarctica | 22 Dec – 4 Jan | 3.7 | New site |
-| Inland Ellesmere Island | Canadian Arctic | 24 Sep – 7 Oct | 3.3 | New site |
-| Devon Island (Haughton crater) | Canadian Arctic | 30 Apr – 13 May | 3.0 | Known analog, used for validation |
-| San Francisco Volcanic Field | Arizona | none | 0 | Known analog, used for validation: the terrain matches, the light never does |
+| Site | Region | Best window | Usable days of 14 | Ground in the window (MODIS) | Note |
+|---|---|---|---|---|---|
+| Peary Land (Jørgen Brønlund Fjord) | Greenland | 21 Sep – 4 Oct | 4.5 | Snow-covered (76% in September) | New site. Its weather cell is mostly ice sheet, so this figure is too pessimistic. |
+| Kronprins Christian Land (Station Nord) | Greenland | 18 Sep – 1 Oct | 3.8 | Snow-covered (100%) | New site |
+| Vestfold Hills | Antarctica | 22 Dec – 4 Jan | 3.7 | Not measured | New site |
+| Inland Ellesmere Island | Canadian Arctic | 24 Sep – 7 Oct | 3.3 | Snow-covered (100%) | New site |
+| Devon Island (Haughton crater) | Canadian Arctic | 30 Apr – 13 May | 3.0 | Snow-covered (100%) | Known analog, used for validation |
+| San Francisco Volcanic Field | Arizona | none | 0 | – | Known analog, used for validation: the terrain matches, the light never does |
+
+**What these windows do not give.** In the Arctic, the weeks with long low sun and workable weather are also weeks with snow on the ground, so the light matches the Moon while the surface does not: snow hides the terrain and is far brighter than regolith. The ranking counts usable days only; snow is reported on every site page and rated "breaks down" on the fidelity card, but it does not lower the count. Snow-free ground with low sun is rarer: the best snow-free month at the default settings is August on Cornwallis Island (2% snow cover) with 0.6 expected usable days of 14, or 2.1 with the cloud limit relaxed to 50%. "New site" means we found no published use of the place as a Moon or Mars analog; it is our own short list.
 
 ### Architecture
 The pipeline does all the heavy calculation in advance and writes static JSON. The website is a static export that reads those files, so it needs no server and no API keys.

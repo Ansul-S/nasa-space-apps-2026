@@ -1,6 +1,6 @@
 # 04 · Proposed Solution: Seasonal Analog Planner
 
-**Status:** approved proposal. The data pipeline (M2a in `06_Roadmap.md`) is built and its results are in `05_Additional_Features.md` §12; the website is not built yet. It is based on `01` (problem), `02` (user) and `03` (approaches). Updated 14 Nov 2026 with the decisions in `05_Additional_Features.md` §11 (summary in "Decisions made" below). The build order and the scope for the event are in `06_Roadmap.md`.
+**Status:** approved proposal, kept as written before the build. The pipeline and the website are built; what was built and what was cut is in `06_Roadmap.md` under "Outcome". Two facts changed since this was written: the Sun is in the band at the Arizona site for about 1.3 hours a day in two stretches of at most 43 minutes (not 1.2), and the Sun moves about 30 times faster on Earth than on the Moon (15°/h against 0.51°/h, not 28 times). It is based on `01` (problem), `02` (user) and `03` (approaches). Updated 14 Nov 2026 with the decisions in `05_Additional_Features.md` §11 (summary in "Decisions made" below). The build order and the scope for the event are in `06_Roadmap.md`.
 
 ## In one sentence
 A **seasonal, test-first analog planner**:
