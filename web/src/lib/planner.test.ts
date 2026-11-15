@@ -1,6 +1,6 @@
 /**
- * Planner ranking, searched-point lighting and search parsing, checked
- * against the pipeline output in public/data.
+ * Planner ranking, searched-point lighting, search parsing and the view in
+ * the URL, checked against the pipeline output in public/data.
  */
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -12,11 +12,13 @@ import {
   localHourOfUtc,
   monthPeaks,
   nearestSite,
+  parseView,
   pointLight,
   rankSites,
   ringHour,
   toPlannerData,
   utcHourOfLocal,
+  viewSearch,
   WINDOW_MIN_H,
 } from "./planner.ts";
 import { fold, localResults, parsePhoton } from "./search.ts";
@@ -144,5 +146,35 @@ describe("search", () => {
     assert.deepEqual(places, [{ name: "Flagstaff", detail: "Arizona, United States", lat: 35.2, lon: -111.65 }]);
     assert.deepEqual(parsePhoton(null), []);
     assert.deepEqual(parsePhoton({ features: "x" }), []);
+  });
+});
+
+describe("view in the URL", () => {
+  test("reads the view the URL asks for", () => {
+    assert.equal(parseView("?view=compare"), "compare");
+    assert.equal(parseView("?view=moon"), "moon");
+    assert.equal(parseView("?view=earth"), "earth");
+    assert.equal(parseView("?view=Compare%20"), "compare");
+  });
+
+  test("opens on Earth when the URL asks for no view or an unknown one", () => {
+    assert.equal(parseView(""), "earth");
+    assert.equal(parseView("?"), "earth");
+    assert.equal(parseView("?view="), "earth");
+    assert.equal(parseView("?view=mars"), "earth");
+    assert.equal(parseView("?mode=compare"), "earth");
+  });
+
+  test("writes the view into the query and keeps other parameters", () => {
+    assert.equal(viewSearch("", "compare"), "?view=compare");
+    assert.equal(viewSearch("?view=compare", "moon"), "?view=moon");
+    assert.equal(viewSearch("?view=compare", "earth"), "");
+    assert.equal(viewSearch("?view=mars", "earth"), "");
+    assert.equal(viewSearch("?a=1&view=moon", "earth"), "?a=1");
+    assert.equal(viewSearch("?a=1", "compare"), "?a=1&view=compare");
+  });
+
+  test("a written view reads back the same", () => {
+    for (const view of ["earth", "moon", "compare"] as const) assert.equal(parseView(viewSearch("?a=1", view)), view);
   });
 });

@@ -199,3 +199,22 @@ export function ringHour(lat: number, lon: number, month: number, bandMax: numbe
 
 /** The best window for a site, if the site has one with usable days. */
 export const usableWindow = (bw: BestWindow | null) => (bw && bw.held_out_mean > 0 ? bw : null);
+
+/** What the globe shows: Earth alone, the Moon alone, or both side by side. */
+export type PlannerView = "earth" | "moon" | "compare";
+const VIEWS: readonly PlannerView[] = ["earth", "moon", "compare"];
+
+/** The view a planner URL asks for in `?view=`. Earth when it asks for none or an unknown one. */
+export function parseView(search: string): PlannerView {
+  const asked = new URLSearchParams(search).get("view")?.trim().toLowerCase();
+  return VIEWS.find((v) => v === asked) ?? "earth";
+}
+
+/** The query for a view, keeping any other parameters. Earth, the default, needs none. */
+export function viewSearch(search: string, view: PlannerView): string {
+  const params = new URLSearchParams(search);
+  if (view === "earth") params.delete("view");
+  else params.set("view", view);
+  const query = params.toString();
+  return query ? `?${query}` : "";
+}

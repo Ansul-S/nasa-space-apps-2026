@@ -25,6 +25,7 @@ export function StoryCta({ story }: { story: StoryData }) {
           <ButtonLink href="/planner/" variant="primary">
             Open the planner <Arrow />
           </ButtonLink>
+          <ButtonLink href="/planner/?view=compare">Compare Earth and Moon</ButtonLink>
           <ButtonLink href={`/sites/${story.sites.ellesmere.id}/`}>See {story.sites.ellesmere.name}</ButtonLink>
         </div>
         <p className="mt-6 text-sm text-ink-3">

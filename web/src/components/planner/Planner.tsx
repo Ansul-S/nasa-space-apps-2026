@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useEffectEvent, useMemo, useState } from "react";
 
 import type { FocusRequest } from "@/components/globe/GlobeView";
 import type { MarkerSpec, PatchSpec } from "@/components/globe/Globe";
@@ -21,13 +21,16 @@ import {
   localHourOfUtc,
   monthPeaks,
   nearestSite,
+  parseView,
   pointLight,
   rampPosition,
   rankSites,
   sunElevationAt,
   usableWindow,
+  viewSearch,
   WINDOW_MIN_H,
   type PlannerData,
+  type PlannerView,
   type RankMode,
 } from "@/lib/planner";
 import type { SearchResult } from "@/lib/search";
@@ -55,7 +58,6 @@ const PLAY_RATE = 1.6;
 
 export type PatchBoxes = Record<string, { lat: number; lon: number; half_lat: number; half_lon: number }>;
 
-type BodyMode = "earth" | "moon" | "compare";
 type EarthSel = { kind: "site"; id: string } | { kind: "place"; name: string; detail: string; lat: number; lon: number };
 interface MoonSel {
   name: string;
@@ -84,7 +86,7 @@ export function Planner({ data, patches, initial }: PlannerProps) {
   const [month, setMonth] = useState(initial.month);
   const [hour, setHour] = useState(initial.hour);
   const [playing, setPlaying] = useState(false);
-  const [body, setBody] = useState<BodyMode>("earth");
+  const [body, setBody] = useState<PlannerView>("earth");
   const [moonOpened, setMoonOpened] = useState(false);
   const [earthSel, setEarthSel] = useState<EarthSel | null>({ kind: "site", id: initial.site });
   const [moonSel, setMoonSel] = useState<MoonSel | null>(null);
@@ -156,7 +158,7 @@ export function Planner({ data, patches, initial }: PlannerProps) {
     [showEarth],
   );
 
-  const openMoon = useCallback((mode: BodyMode = "moon") => {
+  const openMoon = useCallback((mode: PlannerView = "moon") => {
     setMoonOpened(true);
     setBody(mode);
   }, []);
@@ -172,7 +174,7 @@ export function Planner({ data, patches, initial }: PlannerProps) {
     [],
   );
 
-  const onBody = (b: BodyMode) => {
+  const onBody = (b: PlannerView) => {
     if (b !== "earth" && !moonOpened) {
       const f = targetFeature(targetId);
       if (!moonSel) setMoonSel({ name: f.name, lat: f.lat, lon: f.lon, feature: f });
@@ -182,6 +184,28 @@ export function Planner({ data, patches, initial }: PlannerProps) {
     else openMoon(b);
     setCardOpen(true);
   };
+
+  /* ---------- view in the URL ---------- */
+
+  // The static page can't see the query, so the view a link asks for
+  // (/planner/?view=compare) is opened once after load. From then on the URL
+  // follows the globe, so the address bar always links to what is on screen.
+  const [urlRead, setUrlRead] = useState(false);
+  const openUrlView = useEffectEvent(() => {
+    const asked = parseView(window.location.search);
+    if (asked !== "earth") onBody(asked);
+    setUrlRead(true);
+  });
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- the query is only known after hydration: one extra render on load
+    openUrlView();
+  }, []);
+  useEffect(() => {
+    if (!urlRead) return;
+    const { pathname, search, hash } = window.location;
+    const next = viewSearch(search, body);
+    if (next !== search) window.history.replaceState(null, "", `${pathname}${next}${hash}`);
+  }, [urlRead, body]);
 
   const onSearch = (r: SearchResult) => {
     if (r.kind === "site") selectSite(r.site.id);
@@ -522,7 +546,7 @@ export function Planner({ data, patches, initial }: PlannerProps) {
               onSelect={onSearch}
               className="w-full sm:w-[min(360px,calc(100%-250px))]"
             />
-            <Segmented<BodyMode>
+            <Segmented<PlannerView>
               label="Globe"
               value={body}
               onChange={onBody}
