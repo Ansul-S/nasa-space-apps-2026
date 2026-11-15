@@ -3,7 +3,7 @@
 Analysis of the official resources for the NASA Space Apps 2026 challenge *"Identify Earth Locations that Analog the Permanent Moon Base Locations and Mars"*: what each resource offers, which data matters, and how to connect to it. Endpoints, collection IDs and code were **checked against the live services on 13 Nov 2026**.
 
 ## Reading order
-1. [Official challenge page](https://www.spaceappschallenge.org/2026/challenges/permanent-moon-base-locations-and-mar/): the task, judging considerations and resource list
+1. [Official challenge page](https://www.spaceappschallenge.org/2026/challenges/permanent-moon-base-locations-and-mars/): the task, judging considerations and resource list
 2. `5_Synthesis/A_Parameter_Crosswalk.md`: the key table mapping Moon/Mars measurements to Earth datasets
 3. The resource files you will work with (below)
 4. `5_Synthesis/B_Integration_Strategy.md` → `C_Data_Access_Cheatsheet.md` → `D_What_We_Can_Build.md`
