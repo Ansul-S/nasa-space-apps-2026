@@ -41,7 +41,7 @@ export function SitesHero({ list }: { list: SiteList }) {
         <div className="flex animate-rise flex-col gap-5 [animation-delay:120ms]">
           <p className="text-[15px] text-ink-2">
             {counts.validation} validation sites are analogs already in use; {counts.candidate} are candidates, and{" "}
-            {counts.newSites} of all sites are new to analog work. Ranked for {shortName(target.name)} (Sun 0–
+            {counts.newSites} of all sites are not established Moon or Mars analog sites. Ranked for {shortName(target.name)} (Sun 0–
             {formatDegrees(target.band_max_deg)}) by the expected usable days of the best {list.campaignDays}-day
             window, held out. {preset.label}.
           </p>

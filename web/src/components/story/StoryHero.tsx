@@ -29,7 +29,7 @@ export function StoryHero({ story, photo }: { story: StoryData; photo: Photo }) 
           NASA rehearses South Pole moonwalks <em className="text-sun-pale">at night</em>, under spotlights.
         </h1>
         <p className="mt-6 max-w-[54ch] animate-rise text-[clamp(16px,1.35vw,19px)] leading-relaxed text-ink-2 [animation-delay:560ms]">
-          At {shortName(story.target.name)}, a candidate Artemis III landing region near the lunar South Pole, the Sun
+          At {shortName(story.target.name)}, a candidate Artemis landing region near the lunar South Pole, the Sun
           never climbs above {formatNumber(story.target.band_max_deg)}°. On 15 {MONTHS_LONG[STORY_MONTH]} the Sun at the
           Arizona test site passes through that band in{" "}
           <strong className="font-medium text-ink">{formatMinutes(minutes[0])}</strong>, at dawn and again at dusk. So

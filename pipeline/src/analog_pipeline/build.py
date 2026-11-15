@@ -175,9 +175,9 @@ CELL_NOTES = {
     "representative": "At least half of the weather grid cell is bare land.",
     "mixed": "Less than half of the weather grid cell is bare land; the rest is land ice or ocean. "
     "Temperature and wind can differ from the bare-ground site by a few degrees.",
-    "not_representative": "The weather grid cell is ice sheet with no bare land, and can be 5-12 °C colder "
-    "in summer than the bare-ground site. Temperature, wind chill and usable days describe the ice next to "
-    "the site and are too pessimistic.",
+    "not_representative": "The weather grid cell is ice sheet with no bare land. At the two Antarctic sites "
+    "checked against stations it is 7–12 °C colder in summer than the bare-ground site. Temperature, wind chill "
+    "and usable days describe the ice next to the site and are too pessimistic.",
 }
 
 

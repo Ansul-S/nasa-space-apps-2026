@@ -2,7 +2,7 @@
   "notes": [
     "Coordinates are representative points for each area, accurate to about 0.1 deg. The weather grid is 0.5 deg x 0.625 deg (MERRA-2) and 1 deg (CERES), so finer precision does not change the results.",
     "Land and land-ice fractions are checked against the MERRA-2 constants file before the results are used.",
-    "known_analog marks sites already used as Moon or Mars analogs in published field work. It is provisional until the known-sites list is decided."
+    "known_analog marks sites already used or proposed as Moon or Mars analogs in published work, as far as a literature search on 15 Nov 2026 found. Schirmacher Oasis is marked because of published Mars-analog soil and landform studies there. It is our own short list, not the USGS known-sites layer."
   ],
   "sites": [
     {"id": "sf-volcanic-field", "name": "San Francisco Volcanic Field, Arizona", "region": "North America", "lat": 35.35, "lon": -111.50, "role": "validation", "known_analog": true},
@@ -17,7 +17,7 @@
     {"id": "kronprins-christian-land", "name": "Kronprins Christian Land (Station Nord)", "region": "Greenland", "lat": 81.60, "lon": -16.70, "role": "candidate", "known_analog": false},
     {"id": "franz-josef-land", "name": "Franz Josef Land (Hayes Island)", "region": "Russian Arctic", "lat": 80.62, "lon": 58.05, "role": "candidate", "known_analog": false},
     {"id": "severnaya-zemlya", "name": "Severnaya Zemlya (Cape Baranov, Bolshevik Island)", "region": "Russian Arctic", "lat": 79.28, "lon": 101.60, "role": "candidate", "known_analog": false},
-    {"id": "schirmacher-oasis", "name": "Schirmacher Oasis", "region": "Antarctica", "lat": -70.75, "lon": 11.65, "role": "candidate", "known_analog": false},
+    {"id": "schirmacher-oasis", "name": "Schirmacher Oasis", "region": "Antarctica", "lat": -70.75, "lon": 11.65, "role": "candidate", "known_analog": true},
     {"id": "vestfold-hills", "name": "Vestfold Hills", "region": "Antarctica", "lat": -68.55, "lon": 78.20, "role": "candidate", "known_analog": false}
   ]
 }

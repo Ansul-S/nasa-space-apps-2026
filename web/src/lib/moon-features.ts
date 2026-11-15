@@ -30,7 +30,7 @@ export const MOON_FEATURES: MoonFeature[] = [
     kind: "target",
     gazetteer: 16070,
     target: "mons-mouton",
-    note: "Artemis III candidate region",
+    note: "Candidate Artemis landing region",
   },
   {
     id: "mons-malapert",
@@ -40,7 +40,7 @@ export const MOON_FEATURES: MoonFeature[] = [
     kind: "target",
     gazetteer: 16338,
     target: "mons-malapert",
-    note: "Artemis III candidate region",
+    note: "Candidate Artemis landing region",
   },
   { id: "shackleton", name: "Shackleton crater", lat: -89.67, lon: 129.78, kind: "crater", gazetteer: 5450, note: "Crater at the South Pole" },
   { id: "de-gerlache", name: "de Gerlache crater", lat: -88.4849, lon: -88.3447, kind: "crater", gazetteer: 1439, note: "Polar crater" },

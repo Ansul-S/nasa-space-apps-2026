@@ -58,14 +58,14 @@ export const SUN_TESTS = {
 /**
  * A documented field season at a well-known analog site: the 2010 season of
  * the Haughton-Mars Project on Devon Island began on 19 July and ran three
- * weeks (NASA Ames, 26 July 2010). Months are 0-based.
+ * weeks (NASA news release, reprinted by ScienceDaily on 29 July 2010). Months are 0-based.
  */
 export const FIELD_SEASON = {
   site: METHODS_SITE_IDS.devon,
   name: "Haughton-Mars Project",
   months: [6, 7],
   detail: "The 2010 season began on 19 July and ran three weeks.",
-  sourceName: "NASA Ames news release, 26 July 2010",
+  sourceName: "NASA news release, ScienceDaily, 29 July 2010",
   url: "https://www.sciencedaily.com/releases/2010/07/100726142951.htm",
 } as const;
 
@@ -86,6 +86,7 @@ export interface MethodsData {
   siteCount: number;
   targetCount: number;
   presetCount: number;
+  /** Data products read by the pipeline; the calculated sun position is not one. */
   sourceCount: number;
   sites: Record<MethodsSiteKey, SiteMeta>;
   arizona: {
@@ -202,7 +203,7 @@ export function toMethodsData(index: AnalogIndex, details: Record<MethodsSiteKey
     siteCount: index.sites.length,
     targetCount: targets.length,
     presetCount: presets.length,
-    sourceCount: Object.keys(index.sources).length,
+    sourceCount: Object.keys(index.sources).filter((id) => id !== "sun").length,
     sites: { arizona: site("arizona"), svalbard: site("svalbard"), ellesmere: site("ellesmere"), devon: site("devon") },
     arizona: {
       cases: azCases,

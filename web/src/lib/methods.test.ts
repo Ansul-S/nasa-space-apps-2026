@@ -73,7 +73,8 @@ describe("validation checks", () => {
   test("the record and the counts the page quotes", () => {
     assert.deepEqual(data.years, [2016, 2025]);
     assert.equal(data.siteCount, 14);
-    assert.equal(data.sourceCount, Object.keys(index.sources).length);
+    assert.equal(data.sourceCount, Object.keys(index.sources).length - 1);
+    assert.ok("sun" in index.sources);
   });
 
   test("repository links point at files that exist", () => {

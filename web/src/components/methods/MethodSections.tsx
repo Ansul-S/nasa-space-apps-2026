@@ -30,7 +30,7 @@ export function MethodsHero({ data }: { data: MethodsData }) {
   const stats: [ReactNode, string][] = [
     [data.siteCount, "Earth sites"],
     [data.years[1] - data.years[0] + 1, `years of hourly data, ${data.years[0]}–${data.years[1]}`],
-    [data.sourceCount, "NASA and partner datasets"],
+    [data.sourceCount, "NASA and partner data products"],
     [checks, `checks, ${CHECK_COUNTS.automated} automated`],
   ];
   return (
@@ -538,6 +538,7 @@ export function LimitsSection({ data }: { data: MethodsData }) {
       [
         "The horizon is flat. Local terrain can block a low Sun that the data counts as up.",
         "Only the Sun's position is modelled, not the amount of light that reaches the ground.",
+        "The band's upper edge uses 1.5° for the Moon's tilt. The ephemeris puts the Sun up to 1.59° from the lunar equator, so near the height of southern summer the Sun at a target's centre can stand up to 0.1° above the band.",
       ],
     ],
     [

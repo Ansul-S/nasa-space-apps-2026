@@ -351,7 +351,7 @@ export function Checks({ data, index }: { data: MethodsData; index: AnalogIndex 
             expected={`The ${FIELD_SEASON.name} works on Devon Island in July and August, so the data should show bare ground then.`}
             evidence={[
               ["methods.test.ts", methodsTest],
-              ["NASA Ames, 2010", FIELD_SEASON.url],
+              ["NASA, 2010", FIELD_SEASON.url],
             ]}
           >
             <div className="grid gap-x-10 gap-y-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:items-center">
