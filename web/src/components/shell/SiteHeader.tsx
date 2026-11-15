@@ -5,14 +5,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/cn";
-import { FEATURED_SITE } from "@/lib/data";
 
 import { BrandMark } from "./BrandMark";
 
 const NAV = [
   { href: "/", label: "Story", match: (p: string) => p === "/" },
   { href: "/planner/", label: "Planner", match: (p: string) => p.startsWith("/planner") },
-  { href: `/sites/${FEATURED_SITE}/`, label: "Sites", match: (p: string) => p.startsWith("/sites") },
+  { href: "/sites/", label: "Sites", match: (p: string) => p.startsWith("/sites") },
   { href: "/methods/", label: "Methods", match: (p: string) => p.startsWith("/methods") },
 ] as const;
 

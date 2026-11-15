@@ -95,8 +95,8 @@ export function SiteView({ view, initial }: SiteViewProps) {
         <header className="grid items-end gap-x-10 gap-y-8 pt-11 pb-7 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
           <div>
             <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-[13px] text-ink-3">
-              <Link href="/planner/" className="text-ink-2 no-underline transition-colors hover:text-sun">
-                Planner
+              <Link href="/sites/" className="text-ink-2 no-underline transition-colors hover:text-sun">
+                Sites
               </Link>
               <span aria-hidden="true">/</span>
               <span>{site.region}</span>
