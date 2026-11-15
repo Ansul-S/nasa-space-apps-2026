@@ -7,17 +7,23 @@ import {
   type AnalogIndex,
   type BestWindow,
   type Preset,
+  type SiteConditions,
   type SiteMeta,
   type SiteScores,
   type Target,
   type WeatherCellClass,
 } from "./data.ts";
+import { snowLimits, type GapIndex } from "./gap-fillers.ts";
 import { centralAngle } from "./orbit.ts";
 import { bandDay, bandWindows, clockMs, MIN_PER_DAY, sampleDate, solarPosition, type MinuteWindow } from "./sun.ts";
 
 export type RankMode = "month" | "best";
 
-export interface PlannerData {
+/** Unbroken hours in the band that the usable-day rule needs. */
+export const WINDOW_MIN_H = 2;
+
+/** Satisfies GapIndex, so the planner passes it straight to the gap-fillers. */
+export interface PlannerData extends GapIndex {
   sites: SiteMeta[];
   targets: Target[];
   presets: Preset[];
@@ -28,6 +34,8 @@ export interface PlannerData {
   scores: Record<string, Record<string, Record<string, SiteScores>>>;
   /** bandHours[targetId][siteId]: mean hours a day with the Sun in the band, per month. */
   bandHours: Record<string, Record<string, number[]>>;
+  /** Monthly snow cover, wind chill and flags per site. */
+  siteConditions: Record<string, SiteConditions>;
   cellNotes: Record<WeatherCellClass, string>;
   /** Top of the colour ramp: the highest monthly usable-day share anywhere. */
   maxScore: number;
@@ -48,6 +56,8 @@ export function toPlannerData(index: AnalogIndex): PlannerData {
     minUsableDays: index.min_usable_days,
     scores: index.scores,
     bandHours,
+    siteConditions: index.site_conditions,
+    snowLimits: snowLimits(index),
     cellNotes: index.weather_cell_classes,
     maxScore: maxScore(index),
     years: [index.period.years[0], index.period.years[index.period.years.length - 1]],
@@ -117,13 +127,21 @@ export interface PointLight {
   windows: MinuteWindow[];
   /** Hours in the band on the sample day of every month. */
   year: number[];
+  /** Longest unbroken hours in the band on the sample day of every month. */
+  yearLongest: number[];
 }
 
 /** Sun-band hours at any point, on the pipeline's sample day (the 15th) of `month`. */
 export function pointLight(lat: number, lon: number, month: number, bandMax: number, bandMin = 0): PointLight {
-  const year = Array.from({ length: 12 }, (_, m) => bandDay(lat, lon, sampleDate(m), bandMax, bandMin).hours);
-  const day = bandDay(lat, lon, sampleDate(month), bandMax, bandMin);
-  return { hours: day.hours, longestHours: day.longestHours, windows: day.windows, year };
+  const days = Array.from({ length: 12 }, (_, m) => bandDay(lat, lon, sampleDate(m), bandMax, bandMin));
+  const day = days[month];
+  return {
+    hours: day.hours,
+    longestHours: day.longestHours,
+    windows: day.windows,
+    year: days.map((d) => d.hours),
+    yearLongest: days.map((d) => d.longestHours),
+  };
 }
 
 /** Apparent sun elevation at a point at the planner clock time. */

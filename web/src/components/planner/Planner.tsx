@@ -9,6 +9,7 @@ import type { MarkerSpec, PatchSpec } from "@/components/globe/Globe";
 import { Segmented } from "@/components/ui/Segmented";
 import { cn } from "@/lib/cn";
 import { presetId, type ChillChoice, type CloudChoice } from "@/lib/data";
+import { lightingGapFillers } from "@/lib/gap-fillers";
 import { formatClock, formatLatLon, formatNumber, MONTHS, MONTHS_LONG, shortName } from "@/lib/format";
 import { MOON_FEATURES, targetFeature, type MoonFeature } from "@/lib/moon-features";
 import { moonLight, moonSubsolarPoint, moonSunElevation } from "@/lib/moon-sun";
@@ -22,6 +23,8 @@ import {
   rampPosition,
   rankSites,
   sunElevationAt,
+  usableWindow,
+  WINDOW_MIN_H,
   type PlannerData,
   type RankMode,
 } from "@/lib/planner";
@@ -293,6 +296,29 @@ export function Planner({ data, patches, initial }: PlannerProps) {
     [earthSel, data.sites],
   );
 
+  // Gap-filler: where to get the light when the place fails the 2-hour test this month,
+  // or the calculated site has no usable window at all.
+  const selectedRow = selectedSiteId ? rows.find((r) => r.site.id === selectedSiteId) : undefined;
+  const lacksLight =
+    earthSel?.kind === "place"
+      ? !!placeLight && placeLight.longestHours < WINDOW_MIN_H
+      : !!selectedRow && !usableWindow(selectedRow.scores.best_window);
+  const gapAt = earthSel?.kind === "place" ? earthSel : selectedRow?.site;
+  const gap = useMemo(
+    () =>
+      lacksLight && gapAt
+        ? lightingGapFillers(data, {
+            targetId,
+            presetId: preset.id,
+            lat: gapAt.lat,
+            lon: gapAt.lon,
+            month,
+            excludeId: selectedSiteId ?? undefined,
+          })
+        : null,
+    [lacksLight, gapAt, data, targetId, preset.id, month, selectedSiteId],
+  );
+
   const moonPlace = moonSel ?? (() => {
     const f = targetFeature(targetId);
     return { name: f.name, lat: f.lat, lon: f.lon, feature: f };
@@ -321,6 +347,7 @@ export function Planner({ data, patches, initial }: PlannerProps) {
           target={target}
           month={month}
           topSite={topSite}
+          gap={gap}
           onFly={selectSite}
           onClose={() => setCardOpen(false)}
         />
@@ -338,6 +365,8 @@ export function Planner({ data, patches, initial }: PlannerProps) {
         sunNow={sunElevationAt(earthSel.lat, earthSel.lon, month, hour)}
         nearest={placeNearest}
         siteCount={data.sites.length}
+        campaignDays={data.campaignDays}
+        gap={gap}
         onFly={selectSite}
         onClose={() => setCardOpen(false)}
       />

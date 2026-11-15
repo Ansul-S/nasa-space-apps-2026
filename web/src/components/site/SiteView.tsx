@@ -10,8 +10,10 @@ import { YearDots } from "@/components/charts/YearDots";
 import { Callout } from "@/components/ui/Callout";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Panel } from "@/components/ui/Panel";
+import { GapGrid } from "@/components/planner/GapFillers";
 import { Tag } from "@/components/ui/Tag";
 import { presetId, type ChillChoice, type CloudChoice } from "@/lib/data";
+import { lightingGapFillers } from "@/lib/gap-fillers";
 import {
   formatDate,
   formatDuration,
@@ -56,6 +58,20 @@ export function SiteView({ view, initial }: SiteViewProps) {
   const sel = useMemo(() => select(view, targetId, presetId(cloud, chill)), [view, targetId, cloud, chill]);
   const rows = useMemo(() => calendarRows(view, sel, MONTHS), [view, sel]);
   const lines = useMemo(() => fidelityLines(view, sel, month), [view, sel, month]);
+  const gap = useMemo(
+    () =>
+      sel.useful
+        ? null
+        : lightingGapFillers(view.gap, {
+            targetId: sel.target.id,
+            presetId: sel.preset.id,
+            lat: view.site.lat,
+            lon: view.site.lon,
+            month,
+            excludeId: view.site.id,
+          }),
+    [view, sel, month],
+  );
 
   const { site, grid } = view;
   const { target, preset } = sel;
@@ -138,6 +154,39 @@ export function SiteView({ view, initial }: SiteViewProps) {
         </AnimatePresence>
 
         <div className="flex flex-col gap-14 pt-9 pb-24 sm:gap-16">
+          {/* ---------- gap-filler: only where the site lacks the light ---------- */}
+          <AnimatePresence initial={false}>
+            {gap && gap.fillers.length > 0 && (
+              <motion.div
+                key="gap"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3, ease: [0.22, 0.8, 0.24, 1] }}
+                // The negative bottom margin cancels the column gap, so the block collapses to nothing.
+                // The side margin leaves room for the cards' focus ring inside the clipped box.
+                className="-mx-2 -mb-14 overflow-hidden sm:-mb-16"
+              >
+                <div className="px-2 pb-14 sm:pb-16">
+                  <Block
+                    index="gap"
+                    accent="Gap-filler"
+                    eyebrow="Lighting"
+                    title="Where to find the light this site lacks"
+                    aside={
+                      <>
+                        Calculated sites with a usable {view.campaignDays}-day window for {shortTarget(target)} under
+                        these limits, and what each costs in snow and cold. Open one to see its full analysis.
+                      </>
+                    }
+                  >
+                    <GapGrid result={gap} campaignDays={view.campaignDays} month={month} />
+                  </Block>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* ---------- 01 daily sun path ---------- */}
           <Block
             index="01"
@@ -297,12 +346,15 @@ export function SiteView({ view, initial }: SiteViewProps) {
 
 function Block({
   index,
+  accent = index,
   eyebrow,
   title,
   aside,
   children,
 }: {
   index: string;
+  /** Gold lead of the eyebrow; the block number unless set. */
+  accent?: string;
   eyebrow: string;
   title: string;
   aside: ReactNode;
@@ -312,7 +364,7 @@ function Block({
     <section aria-labelledby={`block-${index}`}>
       <div className="mb-4 flex flex-wrap items-end justify-between gap-x-8 gap-y-2.5">
         <div>
-          <Eyebrow accent={index}>{eyebrow}</Eyebrow>
+          <Eyebrow accent={accent}>{eyebrow}</Eyebrow>
           <h2 id={`block-${index}`} className="mt-2 font-display text-[clamp(28px,3vw,34px)] leading-[1.05]">
             {title}
           </h2>

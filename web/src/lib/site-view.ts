@@ -19,6 +19,7 @@ import type {
   TargetMonth,
   WeatherCell,
 } from "./data.ts";
+import { toGapIndex, type GapIndex } from "./gap-fillers.ts";
 import { formatDegrees, formatDuration, formatNumber, formatPercent, formatTemp, humanize, shortName } from "./format.ts";
 
 export type MinuteWindow = [start: number, end: number];
@@ -56,6 +57,8 @@ export interface SiteViewData {
   months: SiteMonth[];
   byTarget: Record<string, TargetView>;
   sun: { stepMin: number; months: SunSample[] };
+  /** Every site's windows, snow and wind chill, for the lighting gap-fillers. */
+  gap: GapIndex;
 }
 
 function highest(values: Iterable<number>): number {
@@ -99,6 +102,7 @@ export function toSiteView(index: AnalogIndex, detail: SiteDetail): SiteViewData
       stepMin: detail.sun_samples.step_min,
       months: detail.sun_samples.months.map((m) => ({ date: m.date, elevation: m.elevation, windows: m.windows })),
     },
+    gap: toGapIndex(index),
   };
 }
 

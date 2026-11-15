@@ -17,6 +17,7 @@ import {
   ringHour,
   toPlannerData,
   utcHourOfLocal,
+  WINDOW_MIN_H,
 } from "./planner.ts";
 import { fold, localResults, parsePhoton } from "./search.ts";
 import { bandDay, sampleDate } from "./sun.ts";
@@ -76,6 +77,14 @@ describe("searched points", () => {
     assert.equal(light.year.length, 12);
     assert.ok(light.hours > 0.9 && light.hours < 1.4, `Flagstaff ${light.hours}`);
     assert.ok(light.longestHours < 1, "never a 2-hour stretch in Arizona");
+  });
+
+  test("longest stretch in the band for every month", () => {
+    const light = pointLight(81, -75, SEP, 6.9); // inland Ellesmere Island
+    light.yearLongest.forEach((h, m) => assert.equal(h, bandDay(81, -75, sampleDate(m), 6.9).longestHours));
+    assert.equal(light.yearLongest[5], 0, "midnight sun in June: the Sun stays above the band");
+    assert.ok(light.yearLongest[SEP] >= WINDOW_MIN_H, `Sep ${light.yearLongest[SEP]} h`);
+    assert.equal(light.longestHours, light.yearLongest[SEP]);
   });
 
   test("nearest calculated site", () => {

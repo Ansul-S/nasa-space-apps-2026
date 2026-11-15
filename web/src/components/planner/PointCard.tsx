@@ -20,10 +20,12 @@ import {
   MONTHS_LONG,
   shortName,
 } from "@/lib/format";
+import type { GapResult } from "@/lib/gap-fillers";
 import type { MoonFeature } from "@/lib/moon-features";
 import type { MoonLight } from "@/lib/moon-sun";
-import type { Nearest, PlannerData, PointLight } from "@/lib/planner";
+import { WINDOW_MIN_H, type Nearest, type PlannerData, type PointLight } from "@/lib/planner";
 
+import { GapList } from "./GapFillers";
 import { MonthStrip } from "./MonthStrip";
 
 /* ---------- shell ---------- */
@@ -92,11 +94,13 @@ interface SiteCardProps {
   month: number;
   /** Top-ranked site this month, offered when this one has no usable days. */
   topSite: SiteMeta | null;
+  /** Sites that give the light, when this one has no usable window. */
+  gap: GapResult | null;
   onFly: (id: string) => void;
   onClose: () => void;
 }
 
-export function SiteCard({ site, scores, bandHours, data, target, month, topSite, onFly, onClose }: SiteCardProps) {
+export function SiteCard({ site, scores, bandHours, data, target, month, topSite, gap, onFly, onClose }: SiteCardProps) {
   const expected = (scores.score[month] ?? 0) * data.campaignDays;
   const bw = scores.best_window;
   const zero = expected <= 0;
@@ -120,9 +124,14 @@ export function SiteCard({ site, scores, bandHours, data, target, month, topSite
       </Headline>
       <Facts
         rows={[
-          [`Median, campaigns from ${MONTHS[month]}`, `${formatNumber(scores.median[month], 0)} days`],
-          ["Bad year to good year", `${formatRange(scores.p10[month], scores.p90[month])} days`],
-          [`Chance of ${data.minUsableDays} or more`, formatPercent(scores.p_at_least[month])],
+          // With no usable window the odds are all zero; the gap-filler gets the room instead.
+          ...(gap
+            ? []
+            : ([
+                [`Median, campaigns from ${MONTHS[month]}`, `${formatNumber(scores.median[month], 0)} days`],
+                ["Bad year to good year", `${formatRange(scores.p10[month], scores.p90[month])} days`],
+                [`Chance of ${data.minUsableDays} or more`, formatPercent(scores.p_at_least[month])],
+              ] as [string, string][])),
           [`Sun in the 0–${formatNumber(target.band_max_deg)}° band`, `${formatNumber(bandHours[month])} h/day`],
           ["Best window", bw && bw.held_out_mean > 0 ? `${formatDayRange(bw.start, bw.end)} · ${formatNumber(bw.held_out_mean)} d` : "none"],
         ]}
@@ -143,11 +152,21 @@ export function SiteCard({ site, scores, bandHours, data, target, month, topSite
           {data.cellNotes[cell]}
         </Note>
       )}
+      {gap && (
+        <GapList
+          className="mt-3.5"
+          result={gap}
+          campaignDays={data.campaignDays}
+          month={month}
+          lead={`No ${data.campaignDays}-day campaign here averages a usable day under these limits.`}
+          onFly={onFly}
+        />
+      )}
       <div className="mt-3.5 flex flex-col gap-2">
         <Link href={`/sites/${site.id}/`} className={buttonClass({ variant: "primary", size: "sm" }, "w-full")}>
           Open site analysis <Arrow />
         </Link>
-        {zero && topSite && topSite.id !== site.id && (
+        {zero && !gap && topSite && topSite.id !== site.id && (
           <button type="button" onClick={() => onFly(topSite.id)} className={buttonClass({ size: "sm" }, "w-full cursor-pointer")}>
             Fly to the top site for {MONTHS[month]}: {shortName(topSite.name)}
           </button>
@@ -173,6 +192,9 @@ interface PlaceCardProps {
   sunNow: number;
   nearest: Nearest;
   siteCount: number;
+  campaignDays: number;
+  /** Sites that give the light, when this place fails the 2-hour test this month. */
+  gap: GapResult | null;
   onFly: (id: string) => void;
   onClose: () => void;
 }
@@ -188,10 +210,13 @@ export function PlaceCard({
   sunNow,
   nearest,
   siteCount,
+  campaignDays,
+  gap,
   onFly,
   onClose,
 }: PlaceCardProps) {
-  const level = light.longestHours >= 2 ? "match" : light.hours > 0 ? "partial" : "breaks_down";
+  const level = light.longestHours >= WINDOW_MIN_H ? "match" : light.hours > 0 ? "partial" : "breaks_down";
+  const passMonths = light.yearLongest.flatMap((h, m) => (h >= WINDOW_MIN_H ? [MONTHS[m]] : []));
   return (
     <CardShell
       eyebrow="Searched place · sun calculated in your browser"
@@ -224,6 +249,20 @@ export function PlaceCard({
         month={month}
         labels
       />
+      {gap && (
+        <GapList
+          className="mt-3.5"
+          result={gap}
+          campaignDays={campaignDays}
+          month={month}
+          lead={
+            passMonths.length
+              ? `No ${WINDOW_MIN_H}-hour stretch here on 15 ${MONTHS[month]}; there is one in ${passMonths.join(", ")}.`
+              : `The Sun never stays in the band for ${WINDOW_MIN_H} hours here.`
+          }
+          onFly={onFly}
+        />
+      )}
       <Note>
         Usable-day odds need ten years of hourly weather, calculated for the {siteCount} sites. Nearest: <b className="font-medium text-ink">{nearest.site.name}</b>,{" "}
         {Math.round(nearest.km).toLocaleString("en")} km away.
