@@ -11,8 +11,11 @@ import { Callout } from "@/components/ui/Callout";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Panel } from "@/components/ui/Panel";
 import { GapGrid } from "@/components/planner/GapFillers";
+import { Button } from "@/components/ui/Button";
+import { DownloadIcon, PrintIcon } from "@/components/ui/Icons";
 import { Tag } from "@/components/ui/Tag";
 import { presetId, type ChillChoice, type CloudChoice } from "@/lib/data";
+import { downloadCsv, siteCsv, siteCsvName } from "@/lib/export";
 import { lightingGapFillers } from "@/lib/gap-fillers";
 import {
   formatDate,
@@ -40,6 +43,7 @@ import {
 import { BestWindowPanel } from "./BestWindowPanel";
 import { FidelityCard } from "./FidelityCard";
 import { MonthTabs } from "./MonthTabs";
+import { PrintCard } from "./PrintCard";
 import { SeasonCalendar } from "./SeasonCalendar";
 import { SiteControls } from "./SiteControls";
 
@@ -102,6 +106,26 @@ export function SiteView({ view, initial }: SiteViewProps) {
               <span>{formatLatLon(site.lat, site.lon)}</span>
               {site.role === "validation" ? <Tag tone="validation">Validation site</Tag> : <Tag>Candidate</Tag>}
               {site.known_analog ? <Tag>Known analog</Tag> : <Tag tone="new">New site</Tag>}
+            </div>
+            <div className="mt-6 flex flex-wrap gap-2.5">
+              <Button
+                size="sm"
+                onClick={() => window.print()}
+                title="One page: the best window and why, the calendar, the fidelity card and the sources"
+              >
+                <PrintIcon />
+                Print card
+              </Button>
+              <Button
+                size="sm"
+                onClick={() =>
+                  downloadCsv(siteCsvName(view, sel), siteCsv(view, sel, window.location.origin + window.location.pathname))
+                }
+                title={`Twelve months for ${shortTarget(target)}, ${preset.label}`}
+              >
+                <DownloadIcon />
+                Download CSV
+              </Button>
             </div>
           </div>
           <BestWindowPanel sel={sel} campaignDays={view.campaignDays} minUsableDays={view.minUsableDays} />
@@ -341,6 +365,8 @@ export function SiteView({ view, initial }: SiteViewProps) {
           </Block>
         </div>
       </div>
+
+      <PrintCard view={view} sel={sel} month={month} rows={rows} lines={lines} gap={gap} />
     </>
   );
 }

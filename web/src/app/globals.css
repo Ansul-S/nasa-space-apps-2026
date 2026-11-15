@@ -29,6 +29,17 @@
   --color-ice: #9db7d5;
   --color-rose: #e58a7b;
 
+  /* The printed card: light paper. Runtime copies are PAPER in src/lib/palette.ts. */
+  --color-paper: #ffffff;
+  --color-paper-ink: #17150f;
+  --color-paper-ink-2: #46433c;
+  --color-paper-ink-3: #67635b;
+  --color-paper-line: #ddd7cc;
+  --color-paper-line-2: #b9b2a5;
+  --color-paper-sun: #94570c;
+  --color-paper-sun-fill: #d08a2c;
+  --color-paper-rose: #a8402d;
+
   --ease-soft: cubic-bezier(0.22, 0.8, 0.24, 1);
 
   --text-eyebrow: 11px;
@@ -383,6 +394,60 @@
   border: 1px solid var(--color-line-2);
   backdrop-filter: blur(10px) saturate(1.2);
   -webkit-backdrop-filter: blur(10px) saturate(1.2);
+}
+
+/*
+ * Print: a page with a print card puts only the card on paper, so the dark
+ * screen layout, header and footer never print. Fixed margins fit both A4 and
+ * US Letter; the paper size is the printer's default. On screen the card is
+ * laid out out of sight at the A4 print width, so it can measure itself and
+ * scale down (--print-fit) when a long case would run onto a second page.
+ */
+.print-card {
+  position: fixed;
+  top: 0;
+  left: -10000px;
+  width: 190mm;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+@media print {
+  @page {
+    margin: 10mm;
+  }
+  body:has(> .print-card) {
+    display: block;
+    min-height: 0;
+    background: var(--color-paper);
+  }
+  html:has(> body > .print-card) {
+    background: var(--color-paper);
+  }
+  body:has(> .print-card)::after {
+    display: none;
+  }
+  body:has(> .print-card) > :not(.print-card) {
+    display: none !important;
+  }
+  .print-card {
+    position: static;
+    width: 190mm;
+    visibility: visible;
+    zoom: var(--print-fit, 1);
+    color: var(--color-paper-ink);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+/* Small uppercase label on the print card. */
+@utility eyebrow-paper {
+  font-family: var(--font-mono);
+  font-size: 6.4pt;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-paper-ink-3);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -4,12 +4,14 @@
  */
 import {
   maxScore,
+  sourceList,
   type AnalogIndex,
   type BestWindow,
   type Preset,
   type SiteConditions,
   type SiteMeta,
   type SiteScores,
+  type SourceRef,
   type Target,
   type TerrainMeta,
   type WeatherCellClass,
@@ -43,6 +45,11 @@ export interface PlannerData extends GapIndex {
   years: [first: number, last: number];
   /** Grid and box of the terrain slopes; null before they are calculated. */
   terrain: TerrainMeta | null;
+  /** First and last day of the weather record, ISO dates. */
+  record: [start: string, end: string];
+  /** Day the pipeline built the data, ISO date. */
+  generated: string;
+  sources: SourceRef[];
 }
 
 export function toPlannerData(index: AnalogIndex): PlannerData {
@@ -65,6 +72,9 @@ export function toPlannerData(index: AnalogIndex): PlannerData {
     maxScore: maxScore(index),
     years: [index.period.years[0], index.period.years[index.period.years.length - 1]],
     terrain: index.terrain ?? null,
+    record: [index.period.start, index.period.end],
+    generated: index.generated,
+    sources: sourceList(index),
   };
 }
 

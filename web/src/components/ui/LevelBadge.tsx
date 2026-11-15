@@ -1,6 +1,6 @@
 import type { Level } from "@/lib/data";
 import { cn } from "@/lib/cn";
-import { COLORS } from "@/lib/palette";
+import { COLORS, PAPER } from "@/lib/palette";
 
 export const LEVEL_LABELS: Record<Level, string> = {
   match: "Match",
@@ -16,25 +16,29 @@ export const LEVEL_LABELS: Record<Level, string> = {
  * ring where Earth cannot reproduce the condition, and a dashed ring where
  * it was not calculated.
  */
-export function LevelGlyph({ level, size = 14 }: { level: Level; size?: number }) {
+export function LevelGlyph({ level, size = 14, tone = "sky" }: { level: Level; size?: number; tone?: "sky" | "paper" }) {
+  const c =
+    tone === "paper"
+      ? { sun: PAPER.sunFill, rose: PAPER.rose, muted: PAPER.ink3 }
+      : { sun: COLORS.sun, rose: COLORS.rose, muted: COLORS.ink3 };
   return (
     <svg width={size} height={size} viewBox="0 0 14 14" aria-hidden="true" className="flex-none">
-      {level === "match" && <circle cx="7" cy="7" r="5.5" fill={COLORS.sun} />}
+      {level === "match" && <circle cx="7" cy="7" r="5.5" fill={c.sun} />}
       {level === "partial" && (
         <>
-          <circle cx="7" cy="7" r="5" fill="none" stroke={COLORS.sun} strokeWidth="1.4" />
-          <path d="M7 2a5 5 0 0 0 0 10z" fill={COLORS.sun} />
+          <circle cx="7" cy="7" r="5" fill="none" stroke={c.sun} strokeWidth="1.4" />
+          <path d="M7 2a5 5 0 0 0 0 10z" fill={c.sun} />
         </>
       )}
-      {level === "breaks_down" && <circle cx="7" cy="7" r="5" fill="none" stroke={COLORS.rose} strokeWidth="1.5" />}
+      {level === "breaks_down" && <circle cx="7" cy="7" r="5" fill="none" stroke={c.rose} strokeWidth="1.5" />}
       {level === "impossible" && (
         <>
-          <circle cx="7" cy="7" r="5" fill="none" stroke={COLORS.ink3} strokeWidth="1.4" />
-          <path d="M3.5 10.5l7-7" stroke={COLORS.ink3} strokeWidth="1.4" />
+          <circle cx="7" cy="7" r="5" fill="none" stroke={c.muted} strokeWidth="1.4" />
+          <path d="M3.5 10.5l7-7" stroke={c.muted} strokeWidth="1.4" />
         </>
       )}
       {level === "not_calculated" && (
-        <circle cx="7" cy="7" r="5" fill="none" stroke={COLORS.ink3} strokeWidth="1.3" strokeDasharray="2 2.2" />
+        <circle cx="7" cy="7" r="5" fill="none" stroke={c.muted} strokeWidth="1.3" strokeDasharray="2 2.2" />
       )}
     </svg>
   );

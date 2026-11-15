@@ -15,12 +15,14 @@ import type {
   SiteDetail,
   SiteMeta,
   SiteMonth,
+  SourceRef,
   Target,
   TargetMonth,
   TerrainMeta,
   TerrainStats,
   WeatherCell,
 } from "./data.ts";
+import { sourceList } from "./data.ts";
 import { toGapIndex, type GapIndex } from "./gap-fillers.ts";
 import {
   formatDegrees,
@@ -30,6 +32,7 @@ import {
   formatSlopes,
   formatTemp,
   humanize,
+  MONTHS,
   shortName,
 } from "./format.ts";
 
@@ -72,6 +75,12 @@ export interface SiteViewData {
   gap: GapIndex;
   /** Grid and box of the terrain slope comparison; null before it is calculated. */
   terrain: TerrainMeta | null;
+  /** Every data source, for the CSV file and the print card. */
+  sources: SourceRef[];
+  /** Day the pipeline built the data, ISO date. */
+  generated: string;
+  /** Rain limit of the usable-day rule, mm a day. */
+  precipMaxMm: number;
 }
 
 function highest(values: Iterable<number>): number {
@@ -117,6 +126,9 @@ export function toSiteView(index: AnalogIndex, detail: SiteDetail): SiteViewData
     },
     gap: toGapIndex(index),
     terrain: index.terrain ?? null,
+    sources: sourceList(index),
+    generated: index.generated,
+    precipMaxMm: Number(index.rule.precip_max_mm_per_day),
   };
 }
 
@@ -353,6 +365,8 @@ export interface FidelityLine {
   site: string;
   level: Level;
   source: string;
+  /** Key into `SiteViewData.sources`; empty for rows without a data source. */
+  sourceId: string;
 }
 
 function groupOf(row: FidelityRow): FidelityGroup {
@@ -410,6 +424,7 @@ export function fidelityLines(view: SiteViewData, sel: Selection, month: number)
       site,
       level: pm.levels[row.id] ?? row.level ?? "not_calculated",
       source: row.source ? (view.sourceNames[row.source] ?? "") : "",
+      sourceId: row.source ?? "",
     } satisfies FidelityLine;
   });
   return FIDELITY_GROUPS.flatMap((g) => lines.filter((l) => l.group === g));
@@ -419,6 +434,103 @@ export function fidelityLines(view: SiteViewData, sel: Selection, month: number)
 export function levelCounts(lines: FidelityLine[]): [Level, number][] {
   const order: Level[] = ["match", "partial", "breaks_down", "impossible", "not_calculated"];
   return order.map((l) => [l, lines.filter((x) => x.level === l).length] as [Level, number]).filter(([, n]) => n > 0);
+}
+
+/* ---------- why the best window ---------- */
+
+/** Days of a `days`-long window starting "MM-DD" in each month it touches, in order. */
+export function windowMonths(start: string, days: number): { month: number; days: number }[] {
+  const [m, d] = start.split("-").map(Number);
+  const out: { month: number; days: number }[] = [];
+  for (let i = 0; i < days; i++) {
+    const month = new Date(Date.UTC(2025, m - 1, d + i)).getUTCMonth();
+    const last = out[out.length - 1];
+    if (last?.month === month) last.days++;
+    else out.push({ month, days: 1 });
+  }
+  return out;
+}
+
+export type ReasonId = "sun" | "clear_sky" | "wind_chill" | "dry";
+
+export interface WindowReason {
+  id: ReasonId;
+  label: string;
+  /** Share of days or hours the condition holds, 0–1. */
+  share: number;
+  /** "of days" or "of hours". */
+  per: string;
+  /** Extra detail after the share, or null. */
+  detail: string | null;
+}
+
+export interface WindowWhy {
+  /** "Sep–Oct": the months the window touches. */
+  months: string;
+  reasons: WindowReason[];
+  /** The usable-day condition with the lowest share. */
+  weakest: ReasonId;
+  /** Snow on the ground, or null where it is not measured. */
+  snowPct: number | null;
+  windMeanMs: number;
+}
+
+/**
+ * The conditions behind the best window: each part of the usable-day test as
+ * the share of days or hours it holds, from the monthly means weighted by the
+ * window's days in each month. Null when there is no window.
+ */
+export function windowWhy(view: SiteViewData, sel: Selection): WindowWhy | null {
+  if (!sel.best) return null;
+  const { preset, targetMonths } = sel;
+  const parts = windowMonths(sel.best.start, view.campaignDays);
+  const total = parts.reduce((a, p) => a + p.days, 0);
+  const mean = (f: (m: number) => number) => parts.reduce((a, p) => a + f(p.month) * p.days, 0) / total;
+  const cloud = String(preset.cloud_max_pct) as "30" | "50";
+  const chill = String(preset.wind_chill_min_c) as "-28" | "-40";
+  const snow = parts.filter((p) => view.months[p.month].snow_pct != null);
+  const snowDays = snow.reduce((a, p) => a + p.days, 0);
+
+  const reasons: WindowReason[] = [
+    {
+      id: "sun",
+      label: "Sun in the band for 2 h unbroken",
+      share: mean((m) => targetMonths[m].window_days_share),
+      per: "of days",
+      detail: `${formatNumber(mean((m) => targetMonths[m].band_hours))} h a day in all`,
+    },
+    {
+      id: "clear_sky",
+      label: `Cloud ≤${cloud}%`,
+      share: mean((m) => view.months[m].clear_hours_share[cloud]),
+      per: "of hours",
+      detail: null,
+    },
+    {
+      id: "wind_chill",
+      label: `Wind chill ≥ ${formatNumber(preset.wind_chill_min_c, 0)}\u00a0°C`,
+      share: mean((m) => view.months[m].wind_chill_ok_share[chill]),
+      per: "of hours",
+      detail: `median ${formatTemp(mean((m) => view.months[m].wind_chill_median_c))}`,
+    },
+    {
+      id: "dry",
+      label: `Under ${formatNumber(view.precipMaxMm)} mm of rain or snow`,
+      share: mean((m) => view.months[m].dry_days_share),
+      per: "of days",
+      detail: null,
+    },
+  ];
+  const weakest = reasons.reduce((a, b) => (b.share < a.share ? b : a)).id;
+  return {
+    months: [...new Set(parts.map((p) => MONTHS[p.month]))].join("–"),
+    reasons,
+    weakest,
+    snowPct: snowDays
+      ? snow.reduce((a, p) => a + (view.months[p.month].snow_pct ?? 0) * p.days, 0) / snowDays
+      : null,
+    windMeanMs: mean((m) => view.months[m].wind_mean_ms),
+  };
 }
 
 /* ---------- small helpers ---------- */

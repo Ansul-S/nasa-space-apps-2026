@@ -6,9 +6,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { FocusRequest } from "@/components/globe/GlobeView";
 import type { MarkerSpec, PatchSpec } from "@/components/globe/Globe";
+import { DownloadIcon } from "@/components/ui/Icons";
 import { Segmented } from "@/components/ui/Segmented";
 import { cn } from "@/lib/cn";
 import { presetId, type ChillChoice, type CloudChoice } from "@/lib/data";
+import { downloadCsv, rankingCsv, rankingCsvName } from "@/lib/export";
 import { lightingGapFillers } from "@/lib/gap-fillers";
 import { formatClock, formatLatLon, formatNumber, MONTHS, MONTHS_LONG, shortName } from "@/lib/format";
 import { MOON_FEATURES, targetFeature, type MoonFeature } from "@/lib/moon-features";
@@ -122,6 +124,10 @@ export function Planner({ data, patches, initial }: PlannerProps) {
   const rows = useMemo(() => rankSites(data, targetId, preset.id, month, rank), [data, targetId, preset.id, month, rank]);
   const peaks = useMemo(() => monthPeaks(data, targetId, preset.id), [data, targetId, preset.id]);
   const topSite = rows[0]?.rank ? rows[0].site : null;
+  const exportRanking = useCallback(() => {
+    const q = { targetId, presetId: preset.id, month, mode: rank };
+    downloadCsv(rankingCsvName(q), rankingCsv(data, rows, q, window.location.origin + window.location.pathname));
+  }, [data, rows, targetId, preset.id, month, rank]);
   const siteById = useCallback((id: string) => data.sites.find((s) => s.id === id), [data.sites]);
 
   /* ---------- selection ---------- */
@@ -429,9 +435,21 @@ export function Planner({ data, patches, initial }: PlannerProps) {
             warning={preset.warning}
           />
         </div>
-        <div className="flex items-baseline justify-between gap-3 px-[max(18px,env(safe-area-inset-left,0px))] pt-3.5 pr-[18px] pb-2">
-          <h2 className="text-[13px] font-medium">{rank === "best" ? "Best window of the year" : `Ranked for ${MONTHS_LONG[month]}`}</h2>
-          <span className="eyebrow">{rank === "best" ? `expected days of ${data.campaignDays}` : `usable days per ${data.campaignDays}`}</span>
+        <div className="flex items-center justify-between gap-3 px-[max(18px,env(safe-area-inset-left,0px))] pt-3 pr-[18px] pb-2">
+          <div className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-0.5">
+            <h2 className="text-[13px] font-medium">{rank === "best" ? "Best window of the year" : `Ranked for ${MONTHS_LONG[month]}`}</h2>
+            <span className="eyebrow">{rank === "best" ? `expected days of ${data.campaignDays}` : `usable days per ${data.campaignDays}`}</span>
+          </div>
+          <button
+            type="button"
+            onClick={exportRanking}
+            aria-label="Download this ranking as CSV"
+            title="Download this ranking as CSV"
+            className="inline-flex flex-none cursor-pointer items-center gap-1.5 rounded-full border border-line px-2.5 py-1 font-mono text-[10.5px] tracking-[0.1em] text-ink-2 transition-colors duration-200 hover:border-line-2 hover:text-ink"
+          >
+            <DownloadIcon size={12} />
+            CSV
+          </button>
         </div>
         <div className="min-h-0 flex-1 px-2.5 pb-5 lg:overflow-y-auto">
           <RankedList rows={rows} data={data} mode={rank} month={month} selectedId={selectedSiteId} onSelect={selectSite} onHover={setHoverId} />

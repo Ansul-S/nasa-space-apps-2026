@@ -312,6 +312,17 @@ export function maxScore(index: AnalogIndex): number {
   return Math.ceil(max * 20) / 20;
 }
 
+/** A data source as the CSV files and the print card list it. */
+export interface SourceRef {
+  id: string;
+  name: string;
+  url: string;
+}
+
+/** Every data source, in the order of index.json. */
+export const sourceList = (index: AnalogIndex): SourceRef[] =>
+  Object.entries(index.sources).map(([id, s]) => ({ id, name: s.name, url: s.url }));
+
 /** Display name of a fidelity source, without its version detail. */
 export function sourceName(index: AnalogIndex, sourceId: string | undefined): string {
   if (!sourceId) return "";

@@ -1,8 +1,9 @@
 import { useId } from "react";
 
-/** A low Sun on the horizon above fading terrain lines. */
-export function BrandMark({ size = 28 }: { size?: number }) {
+/** A low Sun on the horizon above fading terrain lines. On paper the lines are dark. */
+export function BrandMark({ size = 28, tone = "sky" }: { size?: number; tone?: "sky" | "paper" }) {
   const id = `${useId()}-sun`;
+  const line = tone === "paper" ? "#17150F" : "#ECE8E1";
   return (
     <svg width={size} height={size} viewBox="0 0 28 28" aria-hidden="true" className="flex-none">
       <defs>
@@ -13,9 +14,9 @@ export function BrandMark({ size = 28 }: { size?: number }) {
         </radialGradient>
       </defs>
       <path d="M6 17a8 8 0 0 1 16 0z" fill={`url(#${id})`} />
-      <path d="M2 17.5h24" stroke="#ECE8E1" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M5 21.5h18" stroke="#ECE8E1" strokeOpacity=".45" strokeWidth="1.2" strokeLinecap="round" />
-      <path d="M9 25h10" stroke="#ECE8E1" strokeOpacity=".22" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M2 17.5h24" stroke={line} strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M5 21.5h18" stroke={line} strokeOpacity=".45" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M9 25h10" stroke={line} strokeOpacity=".22" strokeWidth="1.2" strokeLinecap="round" />
     </svg>
   );
 }

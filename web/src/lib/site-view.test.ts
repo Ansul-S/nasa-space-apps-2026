@@ -17,6 +17,8 @@ import {
   sunWindows,
   toSiteView,
   windowClock,
+  windowMonths,
+  windowWhy,
 } from "./site-view.ts";
 
 const DATA = new URL("../../public/data/", import.meta.url);
@@ -134,6 +136,47 @@ describe("view model", () => {
     // A coastal box that is mostly sea says so.
     const fj = view("franz-josef-land");
     assert.match(fidelityLines(fj, select(fj, ...DEFAULT), 8).find((l) => l.id === "terrain")!.site, /only 25% of the box is land/);
+  });
+});
+
+describe("why the best window", () => {
+  test("a window's days in each month, across the year end too", () => {
+    assert.deepEqual(windowMonths("09-24", 14), [
+      { month: 8, days: 7 },
+      { month: 9, days: 7 },
+    ]);
+    assert.deepEqual(windowMonths("12-25", 14), [
+      { month: 11, days: 7 },
+      { month: 0, days: 7 },
+    ]);
+    assert.deepEqual(windowMonths("07-01", 14), [{ month: 6, days: 14 }]);
+  });
+
+  test("Ellesmere: monthly shares weighted by the window's days, weakest named", () => {
+    const v = view("ellesmere-inland");
+    const sel = select(v, ...DEFAULT);
+    const why = windowWhy(v, sel)!;
+    assert.equal(why.months, "Sep–Oct");
+    assert.deepEqual(
+      why.reasons.map((r) => r.id),
+      ["sun", "clear_sky", "wind_chill", "dry"],
+    );
+    const clear = why.reasons.find((r) => r.id === "clear_sky")!;
+    const expected = (v.months[8].clear_hours_share["30"] + v.months[9].clear_hours_share["30"]) / 2;
+    assert.ok(Math.abs(clear.share - expected) < 1e-9);
+    const lowest = Math.min(...why.reasons.map((r) => r.share));
+    assert.equal(why.reasons.find((r) => r.id === why.weakest)!.share, lowest);
+    for (const r of why.reasons) assert.ok(r.share >= 0 && r.share <= 1, r.id);
+    assert.ok(why.snowPct != null);
+  });
+
+  test("no window, no reasons; a zero-value window still has them", () => {
+    const az = view("sf-volcanic-field");
+    assert.equal(windowWhy(az, select(az, ...DEFAULT)), null);
+    const mc = view("mcmurdo-dry-valleys");
+    const why = windowWhy(mc, select(mc, ...DEFAULT))!;
+    assert.equal(why.reasons.length, 4);
+    assert.equal(why.snowPct, null);
   });
 });
 

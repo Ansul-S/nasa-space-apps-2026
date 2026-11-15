@@ -32,16 +32,50 @@ const RAMP: Rgb[] = [
   [0xff, 0xe3, 0xa8],
 ];
 
-/** Ramp colour for `t` in 0–1 as [r, g, b]. */
-export function rampRgb(t: number): Rgb {
-  const x = Math.min(1, Math.max(0, t)) * (RAMP.length - 1);
-  const i = Math.min(Math.floor(x), RAMP.length - 2);
+/**
+ * The same scale for paper: no usable light is the paper itself, Moon-like is
+ * deep gold, so the strongest cells still stand out in black-and-white print.
+ */
+const PAPER_RAMP: Rgb[] = [
+  [0xf6, 0xf2, 0xea],
+  [0xf6, 0xe0, 0xb4],
+  [0xee, 0xbf, 0x72],
+  [0xd9, 0x92, 0x3c],
+  [0xb0, 0x63, 0x1c],
+  [0x7a, 0x3c, 0x10],
+];
+
+/** Colours of the printed card: light paper, dark ink, a gold that keeps its contrast on white. */
+export const PAPER = {
+  paper: "#FFFFFF",
+  ink: "#17150F",
+  ink2: "#46433C",
+  ink3: "#67635B",
+  line: "#DDD7CC",
+  line2: "#B9B2A5",
+  sun: "#94570C",
+  sunFill: "#D08A2C",
+  rose: "#A8402D",
+} as const;
+
+function lerpRamp(stops: Rgb[], t: number): Rgb {
+  const x = Math.min(1, Math.max(0, t)) * (stops.length - 1);
+  const i = Math.min(Math.floor(x), stops.length - 2);
   const f = x - i;
-  return RAMP[i].map((c, k) => Math.round(c + (RAMP[i + 1][k] - c) * f)) as Rgb;
+  return stops[i].map((c, k) => Math.round(c + (stops[i + 1][k] - c) * f)) as Rgb;
 }
+
+/** Ramp colour for `t` in 0–1 as [r, g, b]. */
+export const rampRgb = (t: number): Rgb => lerpRamp(RAMP, t);
+
+/** Paper ramp colour for `t` in 0–1 as [r, g, b]. */
+export const paperRampRgb = (t: number): Rgb => lerpRamp(PAPER_RAMP, t);
 
 /** Ramp colour for `t` in 0–1 as a CSS colour. */
 export const rampColor = (t: number) => `rgb(${rampRgb(t).join(" ")})`;
+
+/** Paper ramp colour for `t` in 0–1 as a CSS colour. */
+export const paperRampColor = (t: number) => `rgb(${paperRampRgb(t).join(" ")})`;
 
 /** Ramp as a CSS gradient, for legends. */
 export const rampGradient = (direction = "90deg", stops = 6) =>
@@ -69,9 +103,13 @@ export function contrast(a: Rgb, b: Rgb): number {
  * light or dark ink, whichever reads better, or pure white or black where
  * neither ink is enough (the middle of the ramp).
  */
-export function onRamp(t: number): string {
-  const bg = rampRgb(t);
-  const inks = [COLORS.ink, COLORS.inkOnSun].map((c) => ({ c, k: contrast(hexRgb(c), bg) }));
+export const onRamp = (t: number) => readableInk(rampRgb(t), [COLORS.ink, COLORS.inkOnSun]);
+
+/** Text colour for a paper ramp cell, by the same rule. */
+export const onPaperRamp = (t: number) => readableInk(paperRampRgb(t), [PAPER.ink, PAPER.paper]);
+
+function readableInk(bg: Rgb, choices: [string, string]): string {
+  const inks = choices.map((c) => ({ c, k: contrast(hexRgb(c), bg) }));
   const best = inks[0].k >= inks[1].k ? inks[0] : inks[1];
   if (best.k >= 4.5) return best.c;
   return contrast([255, 255, 255], bg) >= contrast([0, 0, 0], bg) ? "#FFFFFF" : "#000000";
