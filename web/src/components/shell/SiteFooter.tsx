@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { loadIndex } from "@/lib/data.server";
 import { EN_DASH } from "@/lib/format";
 
@@ -27,6 +29,14 @@ export async function SiteFooter() {
             Gazetteer of Planetary Nomenclature (IAU). Place search: Photon, © OpenStreetMap contributors.
           </p>
           <p>Photographs: NASA Image and Video Library (images.nasa.gov), credited where they appear.</p>
+          <p>
+            <Link
+              href="/methods/"
+              className="text-ink-2 underline decoration-line-2 underline-offset-[3px] transition-colors hover:text-ink hover:decoration-ink-3"
+            >
+              Methods, validation and limits
+            </Link>
+          </p>
         </div>
       </div>
     </footer>

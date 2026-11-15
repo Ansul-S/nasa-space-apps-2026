@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Arrow, ButtonLink } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { photoDate, type Photo } from "@/lib/photos";
@@ -25,6 +27,16 @@ export function StoryCta({ story }: { story: StoryData }) {
           </ButtonLink>
           <ButtonLink href={`/sites/${story.sites.ellesmere.id}/`}>See {story.sites.ellesmere.name}</ButtonLink>
         </div>
+        <p className="mt-6 text-sm text-ink-3">
+          Every number here is checked.{" "}
+          <Link
+            href="/methods/#checks"
+            className="text-ink-2 underline decoration-line-2 underline-offset-[3px] transition-colors hover:text-ink hover:decoration-ink-3"
+          >
+            See the validation and the limits
+          </Link>
+          .
+        </p>
       </div>
     </section>
   );

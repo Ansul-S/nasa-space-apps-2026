@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Fragment } from "react";
 
 import { LevelBadge, LevelGlyph, LEVEL_LABELS } from "@/components/ui/LevelBadge";
@@ -135,6 +136,12 @@ export function FidelityCard({
         {footer.map((f) => (
           <span key={f}>{f}</span>
         ))}
+        <Link
+          href="/methods/#levels"
+          className="ml-auto text-ink-2 underline decoration-line-2 underline-offset-[3px] transition-colors hover:text-ink hover:decoration-ink-3"
+        >
+          How match levels are set
+        </Link>
       </div>
     </Panel>
   );

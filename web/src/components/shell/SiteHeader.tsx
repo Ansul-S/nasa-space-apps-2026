@@ -13,6 +13,7 @@ const NAV = [
   { href: "/", label: "Story", match: (p: string) => p === "/" },
   { href: "/planner/", label: "Planner", match: (p: string) => p.startsWith("/planner") },
   { href: `/sites/${FEATURED_SITE}/`, label: "Sites", match: (p: string) => p.startsWith("/sites") },
+  { href: "/methods/", label: "Methods", match: (p: string) => p.startsWith("/methods") },
 ] as const;
 
 export function SiteHeader() {
